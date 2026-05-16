@@ -98,7 +98,7 @@ docs/          project plan, explainers, and devlogs
 - [Project plan](docs/LOW_LEVEL_MODERN_3D_PROJECT_PLAN.md)
 - [Visual project roadmap](docs/low_level_modern_3d_plan_summary.html)
 - [Dataset explainer](docs/dataset_explained_simple.html)
-- [Devlog 1: Building a tiny 3D dataset](docs/devlog_01_procedural_3d_dataset.html)
+- [Devlog 1: Building a tiny 3D dataset](docs/devlog_01_procedural_3d_dataset.md)
 
 ## Next Milestone
 
