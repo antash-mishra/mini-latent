@@ -1,0 +1,14 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+venv/
+
+data/procedural/train/
+data/procedural/val/
+data/procedural/metadata.json
+data/procedural/dataset_stats.json

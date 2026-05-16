@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dataset Explained Simply</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #14171f;
+      --muted: #5d6678;
+      --line: #dce3ef;
+      --blue: #2457c5;
+      --blue-soft: #e7efff;
+      --green: #14745f;
+      --green-soft: #e1f5ef;
+      --amber: #8a5a00;
+      --amber-soft: #fff0cc;
+      --red: #b23a48;
+      --red-soft: #ffe7ea;
+      --code: #eef2f8;
+      --shadow: 0 12px 28px rgba(35, 48, 75, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--bg);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    main {
+      width: min(1080px, calc(100% - 32px));
+      margin: 40px auto 72px;
+    }
+
+    header {
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 850px;
+      margin-top: 14px;
+      font-size: 44px;
+    }
+
+    h2 {
+      margin-bottom: 14px;
+      font-size: 28px;
+    }
+
+    h3 {
+      margin-bottom: 8px;
+      font-size: 19px;
+    }
+
+    p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    section {
+      margin-top: 30px;
+    }
+
+    code,
+    pre {
+      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+      background: var(--code);
+      color: #222b3a;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 12px 0 0;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    ul,
+    ol {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    li + li {
+      margin-top: 8px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .hero-copy {
+      max-width: 800px;
+      margin-top: 16px;
+      font-size: 18px;
+    }
+
+    .card,
+    .step,
+    .example,
+    .note {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .card,
+    .example,
+    .note {
+      padding: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .step {
+      min-height: 132px;
+      padding: 14px;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      margin-bottom: 10px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .blue {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .green {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .amber {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .red {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .voxel-demo {
+      display: grid;
+      grid-template-columns: repeat(8, 22px);
+      gap: 4px;
+      margin-top: 12px;
+    }
+
+    .cell {
+      width: 22px;
+      height: 22px;
+      border-radius: 4px;
+      background: #d9e2f2;
+      border: 1px solid #c4cedf;
+    }
+
+    .cell.on {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .record {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcff;
+    }
+
+    .record div {
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .record div:nth-child(odd) {
+      font-weight: 800;
+      color: var(--ink);
+      background: #f0f4fb;
+    }
+
+    .record div:nth-last-child(-n + 2) {
+      border-bottom: 0;
+    }
+
+    .simple-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      background: var(--panel);
+    }
+
+    .simple-table th,
+    .simple-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    .simple-table th {
+      background: #f0f4fb;
+      color: var(--ink);
+    }
+
+    .simple-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .note {
+      border-left: 5px solid var(--blue);
+    }
+
+    @media (max-width: 860px) {
+      h1 {
+        font-size: 34px;
+      }
+
+      .grid,
+      .grid-3,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .record {
+        grid-template-columns: 1fr;
+      }
+
+      .record div:nth-child(odd) {
+        border-bottom: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span class="eyebrow">Dataset, explained simply</span>
+      <h1>What dataset will we create for Tiny3D-Latent?</h1>
+      <p class="hero-copy">
+        We will create a tiny 3D dataset ourselves. It is not a folder of photos. It is not
+        downloaded 3D models. It is a collection of simple 3D objects made with math, saved as
+        small voxel grids, and paired with labels like <code>red sphere</code> or
+        <code>blue tall cylinder</code>.
+      </p>
+    </header>
+
+    <section>
+      <h2>One-Sentence Explanation</h2>
+      <div class="note">
+        <p>
+          A dataset is just a list of examples the model learns from. In this project, each example
+          is a small 3D grid plus a label that describes the object inside that grid.
+        </p>
+        <pre><code>example = {
+  label: "red sphere",
+  shape_type: "sphere",
+  grid: 32 x 32 x 32 occupancy values,
+  color: "red"
+}</code></pre>
+      </div>
+    </section>
+
+    <section>
+      <h2>Think Of Pixels, Then Voxels</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="pill blue">2D image</span>
+          <h3>A picture is made of pixels</h3>
+          <p>
+            A normal image is a flat grid. Each small square is a pixel. A pixel stores color.
+          </p>
+          <pre><code>image size = 32 x 32 pixels</code></pre>
+        </article>
+        <article class="card">
+          <span class="pill green">3D object</span>
+          <h3>A voxel object is made of voxels</h3>
+          <p>
+            A voxel grid is like a 3D image. Each tiny cube is a voxel. A voxel stores whether
+            that part of space is filled or empty.
+          </p>
+          <pre><code>voxel grid size = 32 x 32 x 32 voxels</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>What Does The Grid Store?</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>Occupancy grid</h3>
+          <p>
+            The simplest version stores only <code>0</code> or <code>1</code>.
+          </p>
+          <ul>
+            <li><code>0</code> means empty space.</li>
+            <li><code>1</code> means the object fills this voxel.</li>
+          </ul>
+          <div class="voxel-demo" aria-label="2D slice of a voxel grid">
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div>
+            <div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div>
+            <div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div>
+            <div class="cell"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div><div class="cell"></div>
+            <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+          </div>
+          <p>
+            The blue squares above are a simple 2D slice through a sphere-like 3D grid.
+          </p>
+        </article>
+        <article class="card">
+          <h3>Example: red sphere</h3>
+          <p>
+            For a sphere, voxels near the center are marked <code>1</code>. Voxels outside the
+            sphere are marked <code>0</code>.
+          </p>
+          <pre><code>if x*x + y*y + z*z <= radius*radius:
+    voxel = 1
+else:
+    voxel = 0</code></pre>
+          <p>
+            This simple rule creates a 3D ball inside the grid. The label tells the model what
+            the grid represents.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>What One Dataset Record Looks Like</h2>
+      <div class="example">
+        <div class="record">
+          <div>ID</div>
+          <div><code>shape_000142</code></div>
+          <div>Prompt label</div>
+          <div><code>red small sphere</code></div>
+          <div>Shape type</div>
+          <div><code>sphere</code></div>
+          <div>Parameters</div>
+          <div><code>radius=0.45, center=(0.0, 0.0, 0.0)</code></div>
+          <div>Grid file</div>
+          <div><code>data/procedural/train/shape_000142_occupancy.npy</code></div>
+          <div>Meaning</div>
+          <div>A <code>32 x 32 x 32</code> grid where each voxel says empty or filled.</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>What Shapes Will We Generate?</h2>
+      <table class="simple-table">
+        <thead>
+          <tr>
+            <th>Shape</th>
+            <th>Why We Use It</th>
+            <th>Example Label</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Sphere</td>
+            <td>Simple smooth object, good first test.</td>
+            <td><code>red sphere</code></td>
+          </tr>
+          <tr>
+            <td>Box / cube</td>
+            <td>Teaches flat faces and sharp edges.</td>
+            <td><code>blue cube</code></td>
+          </tr>
+          <tr>
+            <td>Rounded box</td>
+            <td>Halfway between cube and sphere.</td>
+            <td><code>green rounded cube</code></td>
+          </tr>
+          <tr>
+            <td>Cylinder</td>
+            <td>Teaches long objects and circular cross sections.</td>
+            <td><code>tall yellow cylinder</code></td>
+          </tr>
+          <tr>
+            <td>Capsule</td>
+            <td>Good for smooth elongated shapes.</td>
+            <td><code>red capsule</code></td>
+          </tr>
+          <tr>
+            <td>Torus</td>
+            <td>Teaches holes and ring shapes.</td>
+            <td><code>blue torus</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>How We Build The Dataset</h2>
+      <div class="flow">
+        <div class="step">
+          <strong>1. Make empty 3D space</strong>
+          Create a <code>32 x 32 x 32</code> grid. At first, every voxel is empty.
+        </div>
+        <div class="step">
+          <strong>2. Pick a shape</strong>
+          Choose sphere, cube, cylinder, capsule, torus, or rounded box.
+        </div>
+        <div class="step">
+          <strong>3. Use a math rule</strong>
+          For every voxel, check whether its position is inside the shape.
+        </div>
+        <div class="step">
+          <strong>4. Save the grid</strong>
+          Save the voxel grid as a small array file, such as <code>.npy</code>.
+        </div>
+        <div class="step">
+          <strong>5. Save the label</strong>
+          Save text like <code>red sphere</code> with the grid so the model knows what it is.
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>The Build Process In Plain Pseudocode</h2>
+      <div class="grid">
+        <article class="card">
+          <span class="pill amber">Simple version</span>
+          <h3>Generate one sphere</h3>
+          <pre><code>grid = empty 32 x 32 x 32
+
+for each voxel in grid:
+    get voxel position: x, y, z
+
+    if position is inside sphere:
+        grid[x, y, z] = 1
+    else:
+        grid[x, y, z] = 0
+
+save grid
+save label: "red sphere"</code></pre>
+        </article>
+        <article class="card">
+          <span class="pill green">Dataset version</span>
+          <h3>Generate many shapes</h3>
+          <pre><code>for i in range(5000):
+    shape = random choice:
+        sphere, cube, cylinder, capsule, torus
+
+    color = random choice:
+        red, blue, green, yellow
+
+    size = random choice:
+        small, medium, large, tall, wide
+
+    grid = generate_shape(shape, size)
+    label = color + " " + size + " " + shape
+
+    save grid
+    save label</code></pre>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>What Files Will The Dataset Have?</h2>
+      <div class="card">
+        <pre><code>data/procedural/
+  train/
+    shape_000001_occupancy.npy
+    shape_000002_occupancy.npy
+    shape_000003_occupancy.npy
+  val/
+    shape_004501_occupancy.npy
+    shape_004502_occupancy.npy
+  metadata.json
+  dataset_stats.json
+
+outputs/runs/dataset-preview/
+  preview_grid.png
+  example_slices.png
+  example_meshes.png</code></pre>
+        <p>
+          The <code>.npy</code> files store the actual 3D grids. The metadata stores labels and
+          shape settings. The preview images help us check that the dataset is not broken.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Why This Dataset Helps The Model Learn</h2>
+      <div class="grid-3">
+        <article class="card">
+          <span class="pill blue">Shape</span>
+          <h3>It learns categories</h3>
+          <p>
+            The model sees many sphere examples, many cube examples, and many cylinder examples.
+            It starts learning what makes each shape different.
+          </p>
+        </article>
+        <article class="card">
+          <span class="pill green">Variation</span>
+          <h3>It learns changes</h3>
+          <p>
+            Because we randomize size and scale, the model learns that a sphere can be small,
+            large, shifted, or stretched.
+          </p>
+        </article>
+        <article class="card">
+          <span class="pill red">Conditioning</span>
+          <h3>It learns labels</h3>
+          <p>
+            Labels like <code>red sphere</code> or <code>blue cylinder</code> later let us ask
+            the generator for a specific kind of object.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>What The First Milestone Should Produce</h2>
+      <div class="note">
+        <p>
+          The first dataset milestone is done when we can generate many simple shapes and visually
+          confirm that the grids, labels, and previews are correct.
+        </p>
+        <ul>
+          <li>At least 1,000 generated examples.</li>
+          <li>A train/validation split.</li>
+          <li>A <code>metadata.json</code> file with labels and shape parameters.</li>
+          <li>A preview image showing many examples.</li>
+          <li>A few meshes extracted from the voxel grids for inspection.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Shortest Summary</h2>
+      <div class="card">
+        <p>
+          We are building a tiny artificial 3D dataset. Each example is a simple object like a
+          sphere, cube, or cylinder. We store it as a <code>32 x 32 x 32</code> voxel grid where
+          <code>1</code> means filled and <code>0</code> means empty. We also store a text label
+          like <code>red sphere</code>. The model learns from many of these examples, then later
+          generates new voxel grids from labels.
+        </p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

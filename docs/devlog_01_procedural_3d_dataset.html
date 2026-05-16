@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Devlog 1: Building A Tiny 3D Dataset</title>
+  <style>
+    :root {
+      --bg: #f7f8f4;
+      --panel: #ffffff;
+      --panel-soft: #f1f5ef;
+      --ink: #151917;
+      --muted: #5b655f;
+      --line: #d8e0d7;
+      --accent: #0d6f68;
+      --accent-soft: #dff2ee;
+      --blue: #28537c;
+      --blue-soft: #e4eef8;
+      --gold: #85641d;
+      --gold-soft: #f6edcf;
+      --code: #edf2ec;
+      --shadow: 0 14px 34px rgba(28, 44, 37, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: linear-gradient(180deg, #fbfcf8 0%, var(--bg) 100%);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.65;
+    }
+
+    main {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto 72px;
+    }
+
+    header {
+      padding: 48px 0 30px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    article section {
+      margin-top: 34px;
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0;
+      line-height: 1.16;
+      letter-spacing: 0;
+    }
+
+    h1 {
+      max-width: 900px;
+      margin-top: 16px;
+      font-size: 46px;
+    }
+
+    h2 {
+      margin-bottom: 14px;
+      font-size: 28px;
+    }
+
+    h3 {
+      margin-bottom: 8px;
+      font-size: 19px;
+    }
+
+    p {
+      margin: 0 0 15px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    li + li {
+      margin-top: 7px;
+    }
+
+    code,
+    pre {
+      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+      background: var(--code);
+      color: #26322d;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 14px 0 0;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .lede {
+      max-width: 820px;
+      margin-top: 18px;
+      font-size: 19px;
+    }
+
+    .card,
+    .callout,
+    .example,
+    figure {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .card,
+    .callout,
+    .example {
+      padding: 20px;
+    }
+
+    .callout {
+      border-left: 5px solid var(--accent);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .flow-step {
+      min-height: 118px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .flow-step strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .green {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .blue {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .gold {
+      background: var(--gold-soft);
+      color: var(--gold);
+    }
+
+    .stats {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .stats th,
+    .stats td {
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .stats th {
+      background: var(--panel-soft);
+    }
+
+    .stats tr:last-child td {
+      border-bottom: 0;
+    }
+
+    figure {
+      margin: 18px 0 0;
+      overflow: hidden;
+    }
+
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    figcaption {
+      padding: 12px 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 14px;
+      background: #fbfcfa;
+    }
+
+    .record {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfa;
+    }
+
+    .record div {
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .record div:nth-child(odd) {
+      font-weight: 800;
+      background: var(--panel-soft);
+    }
+
+    .record div:nth-last-child(-n + 2) {
+      border-bottom: 0;
+    }
+
+    .tiny-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 22px);
+      gap: 4px;
+      margin-top: 14px;
+    }
+
+    .cell {
+      width: 22px;
+      height: 22px;
+      border: 1px solid #c9d2cc;
+      border-radius: 4px;
+      background: #e5ebe5;
+    }
+
+    .cell.on {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    @media (max-width: 820px) {
+      h1 {
+        font-size: 35px;
+      }
+
+      .grid,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .record {
+        grid-template-columns: 1fr;
+      }
+
+      .record div:nth-child(odd) {
+        border-bottom: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span class="eyebrow">Tiny3D-Latent Devlog 1</span>
+      <h1>Building A Tiny 3D Dataset Instead Of Downloading A Giant One</h1>
+      <p class="lede">
+        I am building a small text-to-3D system from first principles. The long-term goal is to
+        understand the modern pattern behind systems like TRELLIS and Hunyuan3D by making a tiny,
+        affordable version myself: learn a 3D latent space, generate inside it, and decode the
+        result into a mesh.
+      </p>
+    </header>
+
+    <article>
+      <section>
+        <h2>The Project</h2>
+        <div class="callout">
+          <p>
+            The project is called <strong>Tiny3D-Latent</strong>. It is not trying to compete with
+            current production models. It is a low-level learning project: build the pieces small
+            enough to understand them, but real enough that they form a complete 3D generation
+            pipeline.
+          </p>
+          <pre><code>text label
+  -> condition vector
+  -> tiny latent generator
+  -> 3D latent
+  -> decoder
+  -> voxel grid / TSDF
+  -> mesh
+  -> preview render</code></pre>
+        </div>
+        <div class="flow">
+          <div class="flow-step">
+            <strong>1. Data</strong>
+            Create simple 3D training examples from scratch.
+          </div>
+          <div class="flow-step">
+            <strong>2. Representation</strong>
+            Store shape as a compact 3D grid.
+          </div>
+          <div class="flow-step">
+            <strong>3. Latent space</strong>
+            Train an autoencoder and then a VAE.
+          </div>
+          <div class="flow-step">
+            <strong>4. Generation</strong>
+            Generate new latents from noise and text labels.
+          </div>
+          <div class="flow-step">
+            <strong>5. Assets</strong>
+            Decode, export meshes, and inspect outputs.
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <h2>Why Start With A Dataset?</h2>
+        <p>
+          Before a model can generate 3D objects, it needs examples of what 3D objects look like.
+          I could begin with a real dataset such as Objaverse or ShapeNet, but that would add many
+          problems immediately: mesh cleanup, scale normalization, licenses, inconsistent quality,
+          and much larger preprocessing work.
+        </p>
+        <p>
+          For the first milestone, I wanted the opposite: a dataset I could inspect completely.
+          So I generate simple shapes with math.
+        </p>
+      </section>
+
+      <section>
+        <h2>What The Dataset Looks Like</h2>
+        <div class="grid">
+          <div class="card">
+            <span class="pill green">2D image idea</span>
+            <h3>Pixels</h3>
+            <p>
+              A normal image is a grid of pixels. Each pixel stores color at one place in a flat
+              image.
+            </p>
+            <pre><code>image = height x width</code></pre>
+          </div>
+          <div class="card">
+            <span class="pill blue">3D version</span>
+            <h3>Voxels</h3>
+            <p>
+              A voxel grid is the 3D version. Each voxel is a tiny cube in space. In this project,
+              a voxel stores whether that part of space is empty or filled.
+            </p>
+            <pre><code>object = depth x height x width</code></pre>
+          </div>
+        </div>
+        <p>
+          Each training example is a <code>32 x 32 x 32</code> occupancy grid:
+        </p>
+        <pre><code>0 = empty space
+1 = inside the object</code></pre>
+        <div class="tiny-grid" aria-label="Small voxel slice example">
+          <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+          <div class="cell"></div><div class="cell"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div><div class="cell"></div>
+          <div class="cell"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div>
+          <div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div>
+          <div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div>
+          <div class="cell"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div>
+          <div class="cell"></div><div class="cell"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div><div class="cell"></div>
+          <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell on"></div><div class="cell on"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        </div>
+        <p>
+          The small diagram above is only one flat slice through a 3D object. Stack many slices
+          like that and you get the full volume.
+        </p>
+      </section>
+
+      <section>
+        <h2>One Concrete Example</h2>
+        <p>
+          Here is one real example from the generated dataset:
+        </p>
+        <div class="record">
+          <div>ID</div>
+          <div><code>shape_000007</code></div>
+          <div>Label</div>
+          <div><code>red medium matte sphere</code></div>
+          <div>Shape type</div>
+          <div><code>sphere</code></div>
+          <div>Grid shape</div>
+          <div><code>[32, 32, 32]</code></div>
+          <div>Filled voxels</div>
+          <div><code>1709</code></div>
+          <div>Saved file</div>
+          <div><code>data/procedural/train/shape_000007_occupancy.npy</code></div>
+        </div>
+        <pre><code>{
+  "id": "shape_000007",
+  "label": "red medium matte sphere",
+  "shape_type": "sphere",
+  "grid_shape": [32, 32, 32],
+  "grid_dtype": "uint8",
+  "grid_file": "data/procedural/train/shape_000007_occupancy.npy"
+}</code></pre>
+        <p>
+          Later, the autoencoder will read the voxel grid from that file and learn to compress and
+          reconstruct its 3D shape.
+        </p>
+      </section>
+
+      <section>
+        <h2>What I Built In This Milestone</h2>
+        <div class="grid">
+          <div class="card">
+            <span class="pill green">Generated shapes</span>
+            <ul>
+              <li>spheres</li>
+              <li>cubes</li>
+              <li>rounded boxes</li>
+              <li>cylinders</li>
+              <li>capsules</li>
+              <li>tori</li>
+            </ul>
+          </div>
+          <div class="card">
+            <span class="pill gold">Saved outputs</span>
+            <pre><code>data/procedural/
+  train/
+  val/
+  metadata.json
+  dataset_stats.json</code></pre>
+          </div>
+        </div>
+        <p>
+          The current dataset contains <strong>1,200</strong> generated objects:
+        </p>
+        <table class="stats">
+          <thead>
+            <tr>
+              <th>Split</th>
+              <th>Count</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Train</td><td>1000</td></tr>
+            <tr><td>Validation</td><td>200</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h2>Dataset Preview</h2>
+        <p>
+          I also generate preview images so I can inspect the dataset without opening raw arrays.
+        </p>
+        <figure>
+          <img src="../outputs/runs/20260517-022123-preview/preview_grid.png" alt="Preview grid of procedural 3D dataset slices" />
+          <figcaption>
+            A preview grid of generated shapes. Each panel is one middle slice through a 3D voxel
+            grid, not a full 3D render.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section>
+        <h2>A Useful Confusion: Why A Torus Did Not Look Like A Torus</h2>
+        <p>
+          One preview label said <code>green medium wide torus</code>, but the image looked like two
+          green blobs. At first that seemed like a bug. It turned out to be a visualization lesson.
+        </p>
+        <div class="callout">
+          <p>
+            The dataset stores a 3D torus. The preview shows only one 2D slice through it. A rotated
+            torus can be sliced in a way that intersects only two small parts of the ring.
+          </p>
+          <pre><code>3D torus:
+  full donut shape
+
+single 2D slice:
+  two separate pieces</code></pre>
+        </div>
+        <figure>
+          <img src="../outputs/runs/20260517-022123-preview/example_slices.png" alt="Three slices through a rotated torus" />
+          <figcaption>
+            Three different middle slices through a rotated torus. The object is valid in 3D, but
+            any one slice can be misleading.
+          </figcaption>
+        </figure>
+        <p>
+          That was a good early reminder: if I inspect 3D data with weak visualizations, correct
+          geometry can look wrong. In a later milestone I will move toward mesh extraction and
+          better 3D previews.
+        </p>
+      </section>
+
+      <section>
+        <h2>Current Limits</h2>
+        <ul>
+          <li>The dataset does not contain real objects like cups or chairs yet.</li>
+          <li><code>metallic</code> and <code>matte</code> are currently labels only; they do not yet change geometry or create material channels.</li>
+          <li>The previews are 2D slices, not true mesh renders.</li>
+          <li>The data is synthetic and much cleaner than a real mesh dataset.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>What Comes Next</h2>
+        <p>
+          The next milestone is to turn these voxel grids into actual mesh assets:
+        </p>
+        <pre><code>occupancy grid
+  -> marching cubes
+  -> mesh
+  -> preview render</code></pre>
+        <p>
+          That will make the 3D nature of the data much easier to inspect and will set up the later
+          model stages, where the system starts learning and generating shapes rather than just
+          constructing them procedurally.
+        </p>
+      </section>
+    </article>
+  </main>
+</body>
+</html>

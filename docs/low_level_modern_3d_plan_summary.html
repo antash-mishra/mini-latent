@@ -1,0 +1,1616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tiny3D-Latent Comprehensive Project Plan</title>
+  <style>
+    :root {
+      --bg: #f7f8f3;
+      --panel: #ffffff;
+      --panel-soft: #f1f5ef;
+      --ink: #141817;
+      --muted: #59635d;
+      --line: #d9e0d7;
+      --accent: #0d6f68;
+      --accent-soft: #dff2ef;
+      --blue: #284f7a;
+      --blue-soft: #e2edf8;
+      --gold: #796018;
+      --gold-soft: #f5edce;
+      --red: #9a3c2f;
+      --red-soft: #f6e2dd;
+      --code: #edf1eb;
+      --shadow: 0 12px 28px rgba(28, 45, 38, 0.07);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(180deg, #fbfcf8 0%, var(--bg) 38%, #edf3ec 100%);
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.58;
+    }
+
+    main {
+      width: min(1160px, calc(100% - 32px));
+      margin: 0 auto 72px;
+    }
+
+    header {
+      padding: 48px 0 30px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    section {
+      margin-top: 32px;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      margin: 0;
+      letter-spacing: 0;
+      line-height: 1.18;
+    }
+
+    h1 {
+      max-width: 940px;
+      margin-top: 16px;
+      font-size: 48px;
+    }
+
+    h2 {
+      margin-bottom: 14px;
+      font-size: 28px;
+    }
+
+    h3 {
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+
+    h4 {
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    ul,
+    ol {
+      margin: 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    li + li {
+      margin-top: 7px;
+    }
+
+    code,
+    pre {
+      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+      background: var(--code);
+      color: #26312c;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 5px;
+      font-size: 0.92em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 12px 0 0;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .hero-copy {
+      max-width: 850px;
+      margin-top: 18px;
+      font-size: 18px;
+    }
+
+    .note {
+      margin-top: 20px;
+      padding: 16px 18px;
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: #203935;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .card,
+    .milestone,
+    .stage,
+    .template {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .card,
+    .stage,
+    .template {
+      padding: 20px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .flow-item {
+      min-height: 130px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .flow-item strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+    }
+
+    .toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .toc a,
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      background: var(--panel-soft);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .toc a:hover {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .milestones {
+      display: grid;
+      gap: 18px;
+      margin-top: 16px;
+    }
+
+    .milestone {
+      overflow: hidden;
+    }
+
+    .milestone-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel-soft);
+    }
+
+    .milestone-title {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .milestone-body {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 0;
+    }
+
+    .column {
+      padding: 20px;
+    }
+
+    .column + .column {
+      border-left: 1px solid var(--line);
+      background: #fbfcfa;
+    }
+
+    .block + .block {
+      margin-top: 18px;
+    }
+
+    .resource-list a {
+      display: inline;
+    }
+
+    .mini-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .mini-table th,
+    .mini-table td {
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    .mini-table th {
+      background: var(--panel-soft);
+      color: var(--ink);
+    }
+
+    .mini-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .schedule {
+      overflow-x: auto;
+    }
+
+    .status-green {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .status-blue {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .status-gold {
+      background: var(--gold-soft);
+      color: var(--gold);
+    }
+
+    .status-red {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .callout {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfa;
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 6px;
+      color: var(--ink);
+    }
+
+    @media (max-width: 900px) {
+      h1 {
+        font-size: 38px;
+      }
+
+      .flow,
+      .grid,
+      .grid-3,
+      .milestone-body {
+        grid-template-columns: 1fr;
+      }
+
+      .column + .column {
+        border-left: 0;
+        border-top: 1px solid var(--line);
+      }
+    }
+
+    @media (max-width: 560px) {
+      main {
+        width: min(100% - 20px, 1160px);
+      }
+
+      h1 {
+        font-size: 32px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <span class="eyebrow">Low-cost modern 3D generation</span>
+      <h1>Tiny3D-Latent: a low-level side project with publishable milestones</h1>
+      <p class="hero-copy">
+        This plan is for learning modern 3D generation without spending heavily on cloud GPUs,
+        paid APIs, or huge datasets. The project builds a tiny native-3D latent generator from
+        first principles: procedural 3D data, voxel or TSDF representations, a 3D autoencoder,
+        a VAE, a small latent generator, toy text conditioning, mesh extraction, material channels,
+        metrics, and devlogs after every milestone.
+      </p>
+      <div class="note">
+        Final demo target: <code>text label -> condition vector -> generated latent -> 3D grid -> mesh -> material preview -> report</code>.
+        The goal is not to beat TRELLIS or Hunyuan3D. The goal is to understand the modern pattern at a scale you can build and explain.
+      </div>
+      <div class="flow" aria-label="Project pipeline">
+        <div class="flow-item">
+          <strong>1. Synthetic data</strong>
+          Generate simple 3D shapes yourself so the project starts cheap and controlled.
+        </div>
+        <div class="flow-item">
+          <strong>2. 3D representation</strong>
+          Store shapes as <code>32^3</code> occupancy or TSDF grids before exporting meshes.
+        </div>
+        <div class="flow-item">
+          <strong>3. 3D latent model</strong>
+          Train a tiny autoencoder and VAE so shapes become compact latent vectors.
+        </div>
+        <div class="flow-item">
+          <strong>4. Latent generation</strong>
+          Generate new latents with a small flow or diffusion model.
+        </div>
+        <div class="flow-item">
+          <strong>5. Asset output</strong>
+          Decode to a grid, run marching cubes, render previews, and write a report.
+        </div>
+      </div>
+    </header>
+
+    <section id="overview">
+      <h2>What This Project Is</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>The simple idea</h3>
+          <p>
+            Instead of optimizing a new 3D object from scratch every time, train a small model
+            that learns a reusable 3D shape space. Then generate new shapes inside that learned
+            latent space and decode them into meshes.
+          </p>
+          <pre><code>procedural shapes
+  -> 3D autoencoder / VAE
+  -> latent generator
+  -> generated grid
+  -> marching cubes mesh
+  -> render + report</code></pre>
+        </article>
+        <article class="card">
+          <h3>Why this is modern</h3>
+          <p>
+            Current systems such as TRELLIS, Hunyuan3D, Step1X-3D, and TripoSG use learned 3D
+            representations, latent generation, geometry stages, texture/material stages, and
+            asset export. This project builds a toy-scale version of that direction.
+          </p>
+          <p>
+            You will not reproduce their scale or quality. You will reproduce the learning path:
+            representation, compression, generation, decoding, mesh extraction, and evaluation.
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section id="constraints">
+      <h2>Cost And Scope Rules</h2>
+      <div class="grid-3">
+        <article class="stage">
+          <h3>Keep it cheap</h3>
+          <ul>
+            <li>Use procedural data first.</li>
+            <li>Start at <code>32^3</code> grids.</li>
+            <li>Use tiny PyTorch models.</li>
+            <li>Train on CPU, Apple Silicon MPS, or a small local GPU.</li>
+            <li>Avoid paid APIs for the MVP.</li>
+          </ul>
+        </article>
+        <article class="stage">
+          <h3>Keep it low-level</h3>
+          <ul>
+            <li>Implement dataset generation.</li>
+            <li>Implement model architecture.</li>
+            <li>Implement training loops.</li>
+            <li>Implement mesh extraction and metrics.</li>
+            <li>Write devlogs from your own experiments.</li>
+          </ul>
+        </article>
+        <article class="stage">
+          <h3>Do not start with</h3>
+          <ul>
+            <li>Objaverse-scale datasets.</li>
+            <li>Huge DiT models.</li>
+            <li>Cloud-only workflows.</li>
+            <li>Text-to-image diffusion as a dependency.</li>
+            <li>Benchmarking other models as the main project.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="toc">
+      <h2>Milestone Map</h2>
+      <p>
+        Each milestone gives you code, a visual artifact, and a devlog topic. If a milestone
+        does not produce something visual or measurable, it is not finished.
+      </p>
+      <nav class="toc" aria-label="Milestone links">
+        <a href="#m0">M0 Skeleton</a>
+        <a href="#m1">M1 Dataset</a>
+        <a href="#m2">M2 Mesh Path</a>
+        <a href="#m3">M3 Autoencoder</a>
+        <a href="#m4">M4 VAE</a>
+        <a href="#m5">M5 Generator</a>
+        <a href="#m6">M6 Text</a>
+        <a href="#m7">M7 Materials</a>
+        <a href="#m8">M8 Metrics</a>
+        <a href="#m9">M9 Detail</a>
+        <a href="#m10">M10 Final</a>
+        <a href="#m11">M11 Real Data</a>
+      </nav>
+    </section>
+
+    <section class="milestones">
+      <article class="milestone" id="m0">
+        <div class="milestone-header">
+          <div class="milestone-title">
+            <span class="pill status-green">Milestone 0</span>
+            <span class="pill">Foundation</span>
+          </div>
+          <h2>Project Skeleton And Reproducible Runs</h2>
+          <p>
+            This milestone makes the project easy to run, debug, repeat, and explain before any
+            model training begins.
+          </p>
+        </div>
+        <div class="milestone-body">
+          <div class="column">
+            <div class="block">
+              <h4>What You Build</h4>
+              <ul>
+                <li><code>tiny3dlatent/</code> Python package.</li>
+                <li><code>configs/</code> for dataset, model, training, and render settings.</li>
+                <li><code>outputs/runs/&lt;date&gt;-&lt;experiment&gt;/</code> for artifacts.</li>
+                <li>Run metadata with seed, device, config, runtime, git commit, and output paths.</li>
+                <li>A smoke experiment that creates one run folder and writes <code>metadata.json</code>.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Step-By-Step Instructions</h4>
+              <ol>
+                <li>Create the package and folder structure.</li>
+                <li>Add a small config file for the smoke run.</li>
+                <li>Write a helper that creates timestamped run folders.</li>
+                <li>Save metadata as JSON.</li>
+                <li>Run the smoke script twice and verify two separate runs are created.</li>
+              </ol>
+            </div>
+            <div class="block">
+              <h4>How It Helps</h4>
+              <p>
+                Generative projects produce many files. This milestone prevents confusion later
+                when you compare checkpoints, meshes, renders, and training settings.
+              </p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="block">
+              <h4>Resources</h4>
+              <ul class="resource-list">
+                <li><a href="https://pytorch.org/tutorials/beginner/basics/quickstart_tutorial.html">PyTorch quickstart</a></li>
+                <li><a href="https://pytorch.org/tutorials/beginner/saving_loading_models.html">PyTorch saving and loading models</a></li>
+                <li><a href="https://hydra.cc/docs/intro/">Hydra config docs</a> optional</li>
+                <li><a href="https://docs.wandb.ai/guides/track/">W&B experiment tracking guide</a> for concepts</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Artifact</h4>
+              <pre><code>python -m tiny3dlatent.experiments.smoke
+
+outputs/runs/2026-05-13-smoke/
+  metadata.json
+  config.json</code></pre>
+            </div>
+            <div class="block">
+              <h4>Done When</h4>
+              <ul>
+                <li>The smoke command creates a new run folder every time.</li>
+                <li>The metadata file contains the seed, config, device, and output paths.</li>
+                <li>You can explain where every future artifact should be saved.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Devlog Prompt</h4>
+              <p><strong>Devlog 0:</strong> Why I started with experiment structure before model code.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="milestone" id="m1">
+        <div class="milestone-header">
+          <div class="milestone-title">
+            <span class="pill status-green">Milestone 1</span>
+            <span class="pill">Data</span>
+          </div>
+          <h2>Procedural 3D Dataset</h2>
+          <p>
+            This milestone creates your own cheap 3D dataset from simple mathematical shapes.
+          </p>
+        </div>
+        <div class="milestone-body">
+          <div class="column">
+            <div class="block">
+              <h4>What You Build</h4>
+              <ul>
+                <li>Occupancy grids for spheres, boxes, rounded boxes, cylinders, capsules, and torus shapes.</li>
+                <li>Random scale, position, rotation, and color labels.</li>
+                <li>Labels like <code>sphere</code>, <code>cube</code>, <code>cylinder</code>, <code>red</code>, <code>blue</code>, <code>tall</code>, and <code>wide</code>.</li>
+                <li>Train and validation splits.</li>
+                <li>A dataset preview script.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Step-By-Step Instructions</h4>
+              <ol>
+                <li>Create a normalized coordinate grid from <code>-1</code> to <code>1</code>.</li>
+                <li>Write implicit functions for each shape.</li>
+                <li>Convert each shape to a binary occupancy grid.</li>
+                <li>Randomize parameters and save labels.</li>
+                <li>Render simple previews so you can inspect the data visually.</li>
+              </ol>
+            </div>
+            <div class="block">
+              <h4>How It Helps</h4>
+              <p>
+                This avoids large datasets and makes debugging easier. If the model fails on
+                simple shapes you generated yourself, you know the issue is in the pipeline, not
+                in messy real-world data.
+              </p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="block">
+              <h4>Resources</h4>
+              <ul class="resource-list">
+                <li><a href="https://iquilezles.org/articles/distfunctions/">Inigo Quilez distance functions</a></li>
+                <li><a href="https://numpy.org/doc/stable/user/basics.broadcasting.html">NumPy broadcasting basics</a></li>
+                <li><a href="https://pytorch.org/tutorials/beginner/basics/data_tutorial.html">PyTorch Dataset and DataLoader tutorial</a></li>
+                <li><a href="https://arxiv.org/abs/1512.03012">ShapeNet paper</a> for dataset context</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Artifact</h4>
+              <pre><code>data/procedural/
+  train/
+  val/
+  dataset_stats.json
+
+outputs/runs/.../dataset_preview.png</code></pre>
+            </div>
+            <div class="block">
+              <h4>Done When</h4>
+              <ul>
+                <li>You can generate at least 1,000 shapes quickly.</li>
+                <li>The preview grid clearly shows different shape categories.</li>
+                <li>Labels match the generated shapes.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Devlog Prompt</h4>
+              <p><strong>Devlog 1:</strong> Building a tiny 3D dataset instead of downloading a giant one.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="milestone" id="m2">
+        <div class="milestone-header">
+          <div class="milestone-title">
+            <span class="pill status-blue">Milestone 2</span>
+            <span class="pill">Representation</span>
+          </div>
+          <h2>3D Representation And Mesh Extraction</h2>
+          <p>
+            This milestone proves that the tensor representation your model learns can become an
+            actual mesh asset.
+          </p>
+        </div>
+        <div class="milestone-body">
+          <div class="column">
+            <div class="block">
+              <h4>What You Build</h4>
+              <ul>
+                <li>Dense <code>32^3</code> occupancy grid representation.</li>
+                <li>Optional TSDF grid after occupancy works.</li>
+                <li>Slice visualization for inspecting grids.</li>
+                <li>Marching cubes mesh extraction.</li>
+                <li>OBJ or GLB export.</li>
+                <li>Basic mesh stats: vertices, faces, bounds, and file size.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Step-By-Step Instructions</h4>
+              <ol>
+                <li>Load one procedural occupancy grid.</li>
+                <li>Visualize slices through the grid.</li>
+                <li>Run marching cubes at the occupancy threshold.</li>
+                <li>Export the resulting vertices and faces as a mesh.</li>
+                <li>Render or inspect the mesh from multiple views.</li>
+              </ol>
+            </div>
+            <div class="block">
+              <h4>How It Helps</h4>
+              <p>
+                Modern 3D generation does not stop at a tensor. This milestone creates the bridge
+                from model output to visible asset. Later, every generated grid will use this same
+                path to become a mesh.
+              </p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="block">
+              <h4>Resources</h4>
+              <ul class="resource-list">
+                <li><a href="https://scikit-image.org/docs/stable/api/skimage.measure.html#skimage.measure.marching_cubes">scikit-image marching cubes</a></li>
+                <li><a href="https://en.wikipedia.org/wiki/Marching_cubes">Marching cubes overview</a></li>
+                <li><a href="https://trimesh.org/">trimesh docs</a></li>
+                <li><a href="https://kaolin.readthedocs.io/en/latest/modules/kaolin.rep.html">Kaolin representation docs</a></li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Artifact</h4>
+              <pre><code>occupancy grid
+  -> mesh.obj or mesh.glb
+  -> preview_front.png
+  -> preview_turntable.gif
+  -> mesh_stats.json</code></pre>
+            </div>
+            <div class="block">
+              <h4>Done When</h4>
+              <ul>
+                <li>A generated sphere grid exports as a recognizable sphere mesh.</li>
+                <li>Mesh stats are saved automatically.</li>
+                <li>You can explain occupancy vs mesh in your own words.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Devlog Prompt</h4>
+              <p><strong>Devlog 2:</strong> Turning a voxel grid into my first generated mesh.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="milestone" id="m3">
+        <div class="milestone-header">
+          <div class="milestone-title">
+            <span class="pill status-blue">Milestone 3</span>
+            <span class="pill">Compression</span>
+          </div>
+          <h2>Tiny 3D Autoencoder</h2>
+          <p>
+            This milestone trains a small neural network to compress a 3D shape into a latent
+            vector and reconstruct it.
+          </p>
+        </div>
+        <div class="milestone-body">
+          <div class="column">
+            <div class="block">
+              <h4>What You Build</h4>
+              <ul>
+                <li>3D convolution encoder.</li>
+                <li>Latent vector, for example 64 or 128 dimensions.</li>
+                <li>3D convolution decoder.</li>
+                <li>Binary occupancy reconstruction loss.</li>
+                <li>IoU reconstruction metric.</li>
+                <li>Original vs reconstructed preview grid.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Step-By-Step Instructions</h4>
+              <ol>
+                <li>Start with one shape category and a tiny dataset.</li>
+                <li>Overfit 16 examples first to prove the network can learn.</li>
+                <li>Train on the full small dataset after the overfit test passes.</li>
+                <li>Save reconstructions every epoch.</li>
+                <li>Track reconstruction loss and IoU.</li>
+              </ol>
+            </div>
+            <div class="block">
+              <h4>How It Helps</h4>
+              <p>
+                This is the first core modern idea: a model learns a compressed 3D shape space.
+                Later, the generator will create new points inside this space instead of producing
+                full grids from scratch.
+              </p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="block">
+              <h4>Resources</h4>
+              <ul class="resource-list">
+                <li><a href="https://pytorch.org/docs/stable/generated/torch.nn.Conv3d.html">PyTorch Conv3d docs</a></li>
+                <li><a href="https://pytorch.org/docs/stable/generated/torch.nn.BCEWithLogitsLoss.html">PyTorch BCEWithLogitsLoss docs</a></li>
+                <li><a href="https://pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html">PyTorch autograd tutorial</a></li>
+                <li><a href="https://arxiv.org/abs/1406.5670">3D ShapeNets</a></li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Artifact</h4>
+              <pre><code>input mesh/grid
+  -> encoder
+  -> latent vector
+  -> decoder
+  -> reconstructed grid
+  -> reconstructed mesh</code></pre>
+            </div>
+            <div class="block">
+              <h4>Done When</h4>
+              <ul>
+                <li>The model can overfit a tiny batch.</li>
+                <li>Reconstructed shapes are recognizable.</li>
+                <li>The devlog includes loss curves and visual examples.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Devlog Prompt</h4>
+              <p><strong>Devlog 3:</strong> Teaching a small neural net to remember 3D shapes.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="milestone" id="m4">
+        <div class="milestone-header">
+          <div class="milestone-title">
+            <span class="pill status-blue">Milestone 4</span>
+            <span class="pill">Latent Space</span>
+          </div>
+          <h2>Tiny 3D VAE And Latent Interpolation</h2>
+          <p>
+            This milestone makes the latent space smoother and more useful for sampling.
+          </p>
+        </div>
+        <div class="milestone-body">
+          <div class="column">
+            <div class="block">
+              <h4>What You Build</h4>
+              <ul>
+                <li>Mean and log-variance heads.</li>
+                <li>Reparameterization trick.</li>
+                <li>KL loss with warmup.</li>
+                <li>Reconstruction plus KL objective.</li>
+                <li>Latent interpolation between shapes.</li>
+                <li>Random latent samples decoded into meshes.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Step-By-Step Instructions</h4>
+              <ol>
+                <li>Convert the autoencoder bottleneck into VAE outputs.</li>
+                <li>Add KL loss slowly using warmup.</li>
+                <li>Compare reconstructions before and after KL regularization.</li>
+                <li>Interpolate between two latent vectors.</li>
+                <li>Render the interpolation as a grid or animation.</li>
+              </ol>
+            </div>
+            <div class="block">
+              <h4>How It Helps</h4>
+              <p>
+                A plain autoencoder can memorize. A VAE encourages the latent space to be smoother,
+                which makes it more realistic to sample and generate new shapes later.
+              </p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="block">
+              <h4>Resources</h4>
+              <ul class="resource-list">
+                <li><a href="https://arxiv.org/abs/1312.6114">Auto-Encoding Variational Bayes</a></li>
+                <li><a href="https://github.com/pytorch/examples/tree/main/vae">PyTorch VAE example</a></li>
+                <li><a href="https://lilianweng.github.io/posts/2018-08-12-vae/">Lilian Weng VAE explanation</a></li>
+                <li><a href="https://arxiv.org/abs/1804.03599">beta-VAE context</a> optional</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Artifact</h4>
+              <pre><code>cube latent
+  -> interpolation frames
+  -> cylinder latent
+
+or
+
+sphere -> rounded box -> cube</code></pre>
+            </div>
+            <div class="block">
+              <h4>Done When</h4>
+              <ul>
+                <li>You can interpolate between two shapes.</li>
+                <li>You can explain what KL loss is doing in plain language.</li>
+                <li>You have examples of both success and failure.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Devlog Prompt</h4>
+              <p><strong>Devlog 4:</strong> From memorizing shapes to sampling a 3D latent space.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="milestone" id="m5">
+        <div class="milestone-header">
+          <div class="milestone-title">
+            <span class="pill status-gold">Milestone 5</span>
+            <span class="pill">Generation</span>
+          </div>
+          <h2>Latent Generator With Flow Or Diffusion</h2>
+          <p>
+            This milestone generates new 3D shape latents and decodes them into meshes.
+          </p>
+        </div>
+        <div class="milestone-body">
+          <div class="column">
+            <div class="block">
+              <h4>What You Build</h4>
+              <ul>
+                <li>A frozen or reused VAE decoder.</li>
+                <li>A small MLP latent generator.</li>
+                <li>Class conditioning for shape categories.</li>
+                <li>Recommended first version: rectified flow in latent space.</li>
+                <li>Alternative: tiny latent diffusion with an MLP denoiser.</li>
+                <li>Generated samples decoded to grids and meshes.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Step-By-Step Instructions</h4>
+              <ol>
+                <li>Encode your training shapes into latent vectors.</li>
+                <li>Train a small generator from noise plus label to latent.</li>
+                <li>Decode generated latents with the VAE decoder.</li>
+                <li>Export meshes and preview them.</li>
+                <li>Compare generated samples against training examples.</li>
+              </ol>
+            </div>
+            <div class="block">
+              <h4>How It Helps</h4>
+              <p>
+                This is the key step where the project becomes generative. You are no longer only
+                reconstructing known shapes. You are creating new shapes from noise and conditions.
+              </p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="block">
+              <h4>Resources</h4>
+              <ul class="resource-list">
+                <li><a href="https://arxiv.org/abs/2006.11239">DDPM paper</a></li>
+                <li><a href="https://huggingface.co/blog/annotated-diffusion">Annotated Diffusion</a></li>
+                <li><a href="https://arxiv.org/abs/2210.02747">Flow Matching</a></li>
+                <li><a href="https://arxiv.org/abs/2209.03003">Rectified Flow</a></li>
+                <li><a href="https://arxiv.org/abs/2112.10752">Latent Diffusion</a></li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Artifact</h4>
+              <pre><code>noise + "cube"
+  -> latent generator
+  -> generated latent
+  -> decoder
+  -> cube-like mesh</code></pre>
+            </div>
+            <div class="block">
+              <h4>Done When</h4>
+              <ul>
+                <li>Generated samples are not exact copies of training shapes.</li>
+                <li>Class labels influence the output category.</li>
+                <li>You can explain why latent generation is cheaper than grid generation.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Devlog Prompt</h4>
+              <p><strong>Devlog 5:</strong> Generating 3D shapes in latent space instead of optimizing them one by one.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="milestone" id="m6">
+        <div class="milestone-header">
+          <div class="milestone-title">
+            <span class="pill status-gold">Milestone 6</span>
+            <span class="pill">Conditioning</span>
+          </div>
+          <h2>Tiny Text Conditioning</h2>
+          <p>
+            This milestone adds a small prompt interface without requiring a large text encoder.
+          </p>
+        </div>
+        <div class="milestone-body">
+          <div class="column">
+            <div class="block">
+              <h4>What You Build</h4>
+              <ul>
+                <li>A small vocabulary parser.</li>
+                <li>Word-to-condition mapping for shape, color, size, and material tokens.</li>
+                <li>Condition vectors injected into the latent generator.</li>
+                <li>Invalid prompt handling.</li>
+                <li>Prompt metadata saved with every generated asset.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Step-By-Step Instructions</h4>
+              <ol>
+                <li>Define a small grammar such as <code>&lt;color&gt; &lt;size&gt; &lt;shape&gt;</code>.</li>
+                <li>Map tokens to one-hot vectors or learned embeddings.</li>
+                <li>Concatenate the condition vector with noise or timestep features.</li>
+                <li>Generate several samples per prompt.</li>
+                <li>Save prompt, tokens, condition vector, and output paths.</li>
+              </ol>
+            </div>
+            <div class="block">
+              <h4>How It Helps</h4>
+              <p>
+                This gives you text-to-3D behavior while staying affordable. You learn the core
+                conditioning idea before adding expensive CLIP-style text encoders.
+              </p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="block">
+              <h4>Resources</h4>
+              <ul class="resource-list">
+                <li><a href="https://pytorch.org/docs/stable/generated/torch.nn.Embedding.html">PyTorch Embedding docs</a></li>
+                <li><a href="https://arxiv.org/abs/2103.00020">CLIP paper</a> for context</li>
+                <li><a href="https://arxiv.org/abs/2207.12598">Classifier-free guidance</a> for context</li>
+                <li><a href="https://huggingface.co/learn/nlp-course/chapter6/1">Hugging Face tokenizers course</a> optional</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Artifact</h4>
+              <pre><code>"red sphere"
+  -> condition vector
+  -> generated red sphere-like mesh
+
+"blue tall cylinder"
+  -> condition vector
+  -> generated blue cylinder-like mesh</code></pre>
+            </div>
+            <div class="block">
+              <h4>Done When</h4>
+              <ul>
+                <li>Prompt words change the generated output in visible ways.</li>
+                <li>Unknown prompts fail clearly instead of silently producing nonsense.</li>
+                <li>Each output stores the prompt and parsed tokens.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Devlog Prompt</h4>
+              <p><strong>Devlog 6:</strong> Building tiny text-to-3D without a giant language model.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="milestone" id="m7">
+        <div class="milestone-header">
+          <div class="milestone-title">
+            <span class="pill status-gold">Milestone 7</span>
+            <span class="pill">Assets</span>
+          </div>
+          <h2>Color And Simple Material Channels</h2>
+          <p>
+            This milestone moves from shape-only generation toward usable asset-like outputs.
+          </p>
+        </div>
+        <div class="milestone-body">
+          <div class="column">
+            <div class="block">
+              <h4>What You Build</h4>
+              <ul>
+                <li>RGB voxel channels.</li>
+                <li>Optional roughness and metallic channels.</li>
+                <li>Separate shape decoder and material decoder.</li>
+                <li>Color/material losses.</li>
+                <li>Basic GLB material export where possible.</li>
+                <li>Material summary in metadata.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Step-By-Step Instructions</h4>
+              <ol>
+                <li>Add color labels to procedural shapes.</li>
+                <li>Add RGB output channels to the decoder.</li>
+                <li>Train shape and color losses together.</li>
+                <li>Export meshes with simple material information.</li>
+                <li>Render the same mesh under different lighting.</li>
+              </ol>
+            </div>
+            <div class="block">
+              <h4>How It Helps</h4>
+              <p>
+                Modern 3D models are judged as assets, not only as shapes. This milestone teaches
+                the difference between geometry, color, and material.
+              </p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="block">
+              <h4>Resources</h4>
+              <ul class="resource-list">
+                <li><a href="https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#materials">glTF material docs</a></li>
+                <li><a href="https://learnopengl.com/PBR/Theory">LearnOpenGL PBR theory</a></li>
+                <li><a href="https://trimesh.org/trimesh.visual.material.html">trimesh material docs</a></li>
+                <li><a href="https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1">Hunyuan3D-2.1</a> for shape plus PBR texture context</li>
+                <li><a href="https://microsoft.github.io/TRELLIS.2/">TRELLIS.2</a> for PBR output context</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Artifact</h4>
+              <pre><code>"shiny red sphere"
+  -> generated mesh
+  -> material metadata
+  -> material render grid</code></pre>
+            </div>
+            <div class="block">
+              <h4>Done When</h4>
+              <ul>
+                <li>Generated color matches prompt labels at least roughly.</li>
+                <li>Material metadata is exported with the asset.</li>
+                <li>The devlog explains why geometry and material are separate problems.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Devlog Prompt</h4>
+              <p><strong>Devlog 7:</strong> Why 3D generation is not finished when the shape looks right.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="milestone" id="m8">
+        <div class="milestone-header">
+          <div class="milestone-title">
+            <span class="pill status-red">Milestone 8</span>
+            <span class="pill">Evaluation</span>
+          </div>
+          <h2>Renderer, Metrics, And Failure Gallery</h2>
+          <p>
+            This milestone turns the project into something measurable and explainable.
+          </p>
+        </div>
+        <div class="milestone-body">
+          <div class="column">
+            <div class="block">
+              <h4>What You Build</h4>
+              <ul>
+                <li>Consistent front, side, top, and turntable renders.</li>
+                <li>IoU metric where procedural targets exist.</li>
+                <li>Connected component count.</li>
+                <li>Face count and vertex count.</li>
+                <li>Bounding box checks.</li>
+                <li>Failure gallery with notes.</li>
+                <li>HTML generation report.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Step-By-Step Instructions</h4>
+              <ol>
+                <li>Write one render function used by every experiment.</li>
+                <li>Compute mesh and grid metrics after generation.</li>
+                <li>Save metrics as JSON.</li>
+                <li>Collect the worst outputs intentionally.</li>
+                <li>Generate a report page with renders, metrics, and notes.</li>
+              </ol>
+            </div>
+            <div class="block">
+              <h4>How It Helps</h4>
+              <p>
+                Visual inspection alone is not enough. Metrics help you see whether changes
+                improve shape quality, topology, consistency, and asset usability.
+              </p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="block">
+              <h4>Resources</h4>
+              <ul class="resource-list">
+                <li><a href="https://trimesh.org/trimesh.repair.html">trimesh repair and inspection docs</a></li>
+                <li><a href="https://scikit-image.org/docs/stable/api/skimage.measure.html">scikit-image measurement docs</a></li>
+                <li><a href="https://en.wikipedia.org/wiki/Jaccard_index">Jaccard index and IoU concept</a></li>
+                <li><a href="https://docs.blender.org/api/current/">Blender Python API</a> optional</li>
+                <li><a href="https://pyrender.readthedocs.io/en/latest/">pyrender docs</a> optional</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Artifact</h4>
+              <pre><code>generation_report.html
+  renders
+  mesh stats
+  IoU / quality metrics
+  failure gallery
+  notes</code></pre>
+            </div>
+            <div class="block">
+              <h4>Done When</h4>
+              <ul>
+                <li>Every generated asset has a preview and metrics JSON.</li>
+                <li>The failure gallery explains at least three failure types.</li>
+                <li>You can compare two runs without guessing from memory.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Devlog Prompt</h4>
+              <p><strong>Devlog 8:</strong> Measuring generated 3D assets instead of only eyeballing them.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="milestone" id="m9">
+        <div class="milestone-header">
+          <div class="milestone-title">
+            <span class="pill status-red">Milestone 9</span>
+            <span class="pill">Scaling</span>
+          </div>
+          <h2>Higher Resolution Or Compact Representation</h2>
+          <p>
+            This milestone explores detail, memory cost, and representation tradeoffs.
+          </p>
+        </div>
+        <div class="milestone-body">
+          <div class="column">
+            <div class="block">
+              <h4>What You Build</h4>
+              <ul>
+                <li>A <code>32^3</code> vs <code>64^3</code> comparison.</li>
+                <li>Optional sparse active voxel storage.</li>
+                <li>Optional TSDF decoder.</li>
+                <li>Optional triplane decoder.</li>
+                <li>Memory, runtime, and quality comparison table.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Step-By-Step Instructions</h4>
+              <ol>
+                <li>Measure memory and runtime at <code>32^3</code>.</li>
+                <li>Repeat the same experiment at <code>64^3</code>.</li>
+                <li>Compare reconstruction quality and mesh detail.</li>
+                <li>Choose one compact representation only if the dense version is clearly limiting you.</li>
+                <li>Write down what improved and what became harder.</li>
+              </ol>
+            </div>
+            <div class="block">
+              <h4>How It Helps</h4>
+              <p>
+                This is where you learn why modern systems use smarter representations. Dense
+                3D grids are simple, but memory grows quickly as resolution increases.
+              </p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="block">
+              <h4>Resources</h4>
+              <ul class="resource-list">
+                <li><a href="https://arxiv.org/abs/2112.07945">EG3D triplane paper</a></li>
+                <li><a href="https://arxiv.org/abs/2112.05131">Plenoxels</a></li>
+                <li><a href="https://arxiv.org/abs/2201.05989">Instant-NGP</a></li>
+                <li><a href="https://pytorch.org/docs/stable/sparse.html">PyTorch sparse tensor docs</a></li>
+                <li><a href="https://www.openvdb.org/documentation/doxygen/overview.html">OpenVDB overview</a></li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Artifact</h4>
+              <pre><code>comparison_report.html
+  32^3 outputs
+  64^3 outputs
+  runtime table
+  memory table
+  quality notes</code></pre>
+            </div>
+            <div class="block">
+              <h4>Done When</h4>
+              <ul>
+                <li>You have a clear quality vs cost table.</li>
+                <li>You can explain why resolution is expensive in 3D.</li>
+                <li>You choose the next representation based on evidence.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Devlog Prompt</h4>
+              <p><strong>Devlog 9:</strong> The cost of detail in 3D generation.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="milestone" id="m10">
+        <div class="milestone-header">
+          <div class="milestone-title">
+            <span class="pill status-red">Milestone 10</span>
+            <span class="pill">Final Demo</span>
+          </div>
+          <h2>Final Demo, Architecture Write-Up, And Comparison To SDS</h2>
+          <p>
+            This milestone packages the project into a complete portfolio piece.
+          </p>
+        </div>
+        <div class="milestone-body">
+          <div class="column">
+            <div class="block">
+              <h4>What You Build</h4>
+              <ul>
+                <li>Final CLI for generating shapes from toy prompts.</li>
+                <li>Small web gallery of generated assets.</li>
+                <li>Architecture diagram.</li>
+                <li>Failure gallery.</li>
+                <li>Cost and runtime table.</li>
+                <li>Comparison with the older SDS/DreamFusion-style plan.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Step-By-Step Instructions</h4>
+              <ol>
+                <li>Select 10 to 20 representative prompts.</li>
+                <li>Generate multiple samples per prompt.</li>
+                <li>Render and evaluate every output.</li>
+                <li>Create a final report that explains what worked and what failed.</li>
+                <li>Explain how the toy system maps to current 3D generation systems.</li>
+              </ol>
+            </div>
+            <div class="block">
+              <h4>How It Helps</h4>
+              <p>
+                The final result shows implementation depth and technical understanding. It also
+                gives you a clean story: you built a low-cost, low-level toy version of modern
+                native 3D generation.
+              </p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="block">
+              <h4>Resources</h4>
+              <ul class="resource-list">
+                <li><a href="https://arxiv.org/abs/2209.14988">DreamFusion</a> for SDS comparison</li>
+                <li><a href="https://microsoft.github.io/TRELLIS.2/">TRELLIS.2 project page</a></li>
+                <li><a href="https://github.com/Tencent-Hunyuan/Hunyuan3D-2.1">Hunyuan3D-2.1 GitHub</a></li>
+                <li><a href="https://github.com/stepfun-ai/Step1X-3D">Step1X-3D GitHub</a></li>
+                <li><a href="https://github.com/VAST-AI-Research/TripoSG">TripoSG GitHub</a></li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Artifact</h4>
+              <pre><code>final_demo/
+  generated_assets/
+  turntables/
+  reports/
+  architecture_diagram.png
+  final_writeup.md
+  gallery.html</code></pre>
+            </div>
+            <div class="block">
+              <h4>Done When</h4>
+              <ul>
+                <li>A user can run one command and generate an asset report.</li>
+                <li>The final write-up explains the architecture clearly.</li>
+                <li>You can compare this approach against SDS in plain language.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Devlog Prompt</h4>
+              <p><strong>Devlog 10:</strong> What I learned by building a tiny modern 3D generator from scratch.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="milestone" id="m11">
+        <div class="milestone-header">
+          <div class="milestone-title">
+            <span class="pill status-red">Milestone 11</span>
+            <span class="pill">Real Data Extension</span>
+          </div>
+          <h2>Small Real 3D Dataset Ingestion</h2>
+          <p>
+            This milestone teaches the practical mess behind real 3D datasets after the procedural
+            pipeline is already working.
+          </p>
+        </div>
+        <div class="milestone-body">
+          <div class="column">
+            <div class="block">
+              <h4>What You Build</h4>
+              <ul>
+                <li>Download or collect 20 to 100 public meshes.</li>
+                <li>Track source URL and license for every asset.</li>
+                <li>Load mesh formats such as OBJ, GLB, FBX, and STL where possible.</li>
+                <li>Normalize scale so each object fits in the same unit box.</li>
+                <li>Center meshes at the origin.</li>
+                <li>Repair simple mesh issues where possible.</li>
+                <li>Voxelize meshes into <code>32^3</code> or <code>64^3</code> occupancy/TSDF grids.</li>
+                <li>Create labels such as <code>cup</code>, <code>mug</code>, <code>bottle</code>, or <code>chair</code>.</li>
+                <li>Compare real mesh voxelization against procedural shape voxelization.</li>
+                <li>Test or fine-tune the autoencoder on the small real dataset.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Step-By-Step Instructions</h4>
+              <ol>
+                <li>Pick one small category first, such as cups or mugs.</li>
+                <li>Collect a small number of meshes and record their licenses.</li>
+                <li>Load each mesh and inspect whether it has missing parts, odd scale, or broken geometry.</li>
+                <li>Normalize each mesh to a shared coordinate system.</li>
+                <li>Voxelize the cleaned mesh into the same format used by the procedural dataset.</li>
+                <li>Generate before/after preview renders and voxel previews.</li>
+                <li>Run the existing autoencoder or fine-tune it on the real subset.</li>
+              </ol>
+            </div>
+            <div class="block">
+              <h4>How It Helps</h4>
+              <p>
+                Real 3D data teaches important production problems: mesh cleanup, scale
+                normalization, voxelization, licensing, inconsistent quality, large downloads, and
+                extra compute. This belongs after the toy pipeline works so dataset complexity
+                does not block the core model.
+              </p>
+            </div>
+          </div>
+          <div class="column">
+            <div class="block">
+              <h4>Resources</h4>
+              <ul class="resource-list">
+                <li><a href="https://trimesh.org/">trimesh loading and processing docs</a></li>
+                <li><a href="https://trimesh.org/trimesh.voxel.html">trimesh voxel docs</a></li>
+                <li><a href="https://docs.blender.org/api/current/bpy.ops.import_scene.html">Blender Python import/export docs</a></li>
+                <li><a href="https://arxiv.org/abs/2212.08051">Objaverse paper</a></li>
+                <li><a href="https://objaverse.allenai.org/">Objaverse website</a></li>
+                <li><a href="https://arxiv.org/abs/1512.03012">ShapeNet paper</a></li>
+                <li><a href="https://creativecommons.org/share-your-work/cclicenses/">Creative Commons license overview</a></li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Artifact</h4>
+              <pre><code>real_dataset_report.html
+  source_license_table.json
+  before_after_normalization/
+  voxelized_previews/
+  mesh_issue_examples/
+  procedural_vs_real_comparison/
+  fine_tune_notes.md</code></pre>
+            </div>
+            <div class="block">
+              <h4>Done When</h4>
+              <ul>
+                <li>You have a source and license table for every real mesh.</li>
+                <li>Real meshes are normalized into a consistent coordinate system.</li>
+                <li>At least a few real meshes are voxelized and previewed correctly.</li>
+                <li>The report shows what broke compared with procedural data.</li>
+              </ul>
+            </div>
+            <div class="block">
+              <h4>Devlog Prompt</h4>
+              <p><strong>Devlog 11:</strong> What broke when I moved from procedural shapes to real 3D data.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="schedule">
+      <h2>Suggested Timeline</h2>
+      <div class="schedule">
+        <table class="mini-table">
+          <thead>
+            <tr>
+              <th>Week</th>
+              <th>Milestone Focus</th>
+              <th>Main Output</th>
+              <th>Blog Output</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>M0 and M1</td>
+              <td>Run folders, metadata, procedural shape previews</td>
+              <td>Devlogs 0 and 1</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>M2</td>
+              <td>Occupancy grid to mesh export</td>
+              <td>Devlog 2</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>M3</td>
+              <td>Autoencoder reconstructions</td>
+              <td>Devlog 3</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>M4</td>
+              <td>VAE interpolation results</td>
+              <td>Devlog 4</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>M5</td>
+              <td>Latent-generated meshes</td>
+              <td>Devlog 5</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>M6</td>
+              <td>Toy text-conditioned generations</td>
+              <td>Devlog 6</td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>M7 and M8</td>
+              <td>Material outputs and generation report</td>
+              <td>Devlogs 7 and 8</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td>M9 and M10</td>
+              <td>Resolution comparison, final gallery, final report</td>
+              <td>Devlogs 9 and 10</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td>M11 part 1</td>
+              <td>Collect and normalize 20 to 100 real meshes</td>
+              <td>Real dataset notes</td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td>M11 part 2</td>
+              <td>Voxelize real meshes and test or fine-tune the model</td>
+              <td>Devlog 11</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="mvp">
+      <h2>Minimum Viable Demo</h2>
+      <div class="grid">
+        <article class="card">
+          <h3>First serious demo</h3>
+          <pre><code>Input: "red sphere"
+
+1. Generate procedural shape data.
+2. Train a tiny 3D autoencoder.
+3. Train a class-conditioned latent generator.
+4. Generate a new latent from the label.
+5. Decode it into a 3D grid.
+6. Extract a mesh with marching cubes.
+7. Render a turntable.
+8. Write an HTML report.</code></pre>
+        </article>
+        <article class="card">
+          <h3>Success criteria</h3>
+          <ul>
+            <li>The output is visibly 3D, not just a saved tensor.</li>
+            <li>The prompt condition changes the generated result.</li>
+            <li>The mesh can be inspected outside the training loop.</li>
+            <li>The report includes renders, metrics, and failure notes.</li>
+            <li>The devlog explains the idea without relying on jargon.</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="devlog-template" class="template">
+      <h2>Reusable Devlog Template</h2>
+      <p>
+        Use this after every milestone. The best posts should show the artifact first, then explain
+        the implementation and the failure modes.
+      </p>
+      <pre><code># Devlog N: Title
+
+## Goal
+What I wanted this milestone to prove.
+
+## What I Built
+The concrete code, scripts, outputs, and files created.
+
+## What I Studied
+The papers, docs, or concepts I used.
+
+## Key Idea In Plain English
+The simplest explanation of the technical idea.
+
+## Main Result
+Screenshots, renders, meshes, metrics, or videos.
+
+## What Failed Or Confused Me
+Bugs, bad outputs, unclear concepts, wrong assumptions.
+
+## What This Teaches About Modern 3D Generation
+How this milestone connects to TRELLIS, Hunyuan3D, Step1X-3D, or TripoSG.
+
+## Next Step
+What the next milestone builds on top of this.</code></pre>
+    </section>
+
+    <section id="summary">
+      <h2>Shortest Summary</h2>
+      <div class="callout">
+        <strong>Build the tiny version of modern 3D generation.</strong>
+        <p>
+          Start with procedural shapes, learn a compact 3D latent space, generate new latents,
+          decode them into grids, export meshes, add simple materials, measure the outputs, and
+          write a devlog after each milestone. After the toy pipeline works, add a small real 3D
+          dataset milestone to learn mesh cleanup, normalization, voxelization, licensing, and
+          real-data failure modes.
+        </p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
