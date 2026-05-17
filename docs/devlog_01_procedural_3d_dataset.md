@@ -112,6 +112,17 @@ One generated record looks like this:
 The `.npy` file contains the actual 3D grid. Later milestones will feed grids like this into a 3D
 autoencoder.
 
+## Code References
+
+The implementation for this milestone is small enough to read directly:
+
+- [Dataset generator](https://github.com/antash-mishra/mini-latent/blob/main/tiny3dlatent/data/generate.py)
+- [Shape formulas](https://github.com/antash-mishra/mini-latent/blob/main/tiny3dlatent/data/shapes.py)
+- [3D grid creation](https://github.com/antash-mishra/mini-latent/blob/main/tiny3dlatent/data/grid.py)
+- [Preview rendering](https://github.com/antash-mishra/mini-latent/blob/main/tiny3dlatent/data/preview.py)
+- [Dataset config](https://github.com/antash-mishra/mini-latent/blob/main/configs/procedural_dataset.json)
+- [Tests](https://github.com/antash-mishra/mini-latent/blob/main/tests/test_procedural_dataset.py)
+
 ## What I Studied
 
 This milestone introduced a few ideas that will keep showing up later:
