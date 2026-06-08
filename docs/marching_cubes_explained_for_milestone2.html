@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marching Cubes Explained — Tiny3D-Latent Milestone 2</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --panel: #161b22;
+      --panel-soft: #1f2630;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --muted: #8b949e;
+      --heading: #e6edf3;
+      --accent: #58a6ff;
+      --green: #3fb950;
+      --yellow: #d29922;
+      --red: #f85149;
+      --code: #21262d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.7;
+    }
+
+    header {
+      padding: 56px 20px 40px;
+      background:
+        radial-gradient(circle at top left, rgba(88, 166, 255, 0.18), transparent 34%),
+        var(--panel);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      margin-bottom: 14px;
+      padding: 5px 10px;
+      border: 1px solid rgba(88, 166, 255, 0.45);
+      border-radius: 999px;
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3 {
+      color: var(--heading);
+      line-height: 1.2;
+    }
+
+    h1 {
+      max-width: 780px;
+      margin: 0 0 16px;
+      font-size: clamp(34px, 5vw, 54px);
+      letter-spacing: -0.03em;
+    }
+
+    header p {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+    }
+
+    main {
+      padding: 30px 20px 70px;
+    }
+
+    section {
+      margin: 22px 0;
+      padding: 24px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--accent);
+      font-size: 25px;
+    }
+
+    h3 {
+      margin: 22px 0 8px;
+      font-size: 19px;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    ul,
+    ol {
+      margin: 10px 0 0;
+      padding-left: 24px;
+    }
+
+    li {
+      margin: 8px 0;
+    }
+
+    code {
+      padding: 2px 6px;
+      background: var(--code);
+      border-radius: 5px;
+      color: var(--accent);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.93em;
+    }
+
+    pre {
+      overflow-x: auto;
+      margin: 14px 0;
+      padding: 16px;
+      background: var(--code);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      line-height: 1.55;
+    }
+
+    pre code {
+      padding: 0;
+      background: transparent;
+      color: inherit;
+    }
+
+    table {
+      width: 100%;
+      margin: 16px 0 4px;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    th,
+    td {
+      padding: 11px 13px;
+      border: 1px solid var(--border);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: var(--panel-soft);
+      color: var(--heading);
+    }
+
+    .note,
+    .warning,
+    .takeaway {
+      margin: 16px 0;
+      padding: 16px;
+      border-radius: 10px;
+      background: var(--panel-soft);
+      border-left: 4px solid var(--accent);
+    }
+
+    .warning {
+      border-left-color: var(--yellow);
+    }
+
+    .takeaway {
+      border-left-color: var(--green);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .flow div {
+      min-height: 86px;
+      padding: 12px;
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 650;
+    }
+
+    .arrow {
+      color: var(--accent);
+      font-size: 24px;
+    }
+
+    .diagram {
+      color: var(--heading);
+      white-space: pre;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    @media (max-width: 760px) {
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .arrow {
+        transform: rotate(90deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <span class="eyebrow">Milestone 2 · Concept First</span>
+      <h1>Marching Cubes Explained Slowly</h1>
+      <p>
+        A project-specific explanation for Tiny3D-Latent: how a voxel occupancy grid becomes
+        a triangle mesh, and why this matters before training the neural network.
+      </p>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <section>
+        <h2>1. What problem is marching cubes solving?</h2>
+        <p>
+          In this project, each procedural shape is currently stored as a 3D grid:
+        </p>
+        <pre><code>32 x 32 x 32 voxels</code></pre>
+        <p>Each voxel stores a simple value:</p>
+        <pre><code>0 = empty space
+1 = inside the object</code></pre>
+        <p>
+          This is useful for neural networks, but it is not yet a normal 3D asset. Blender,
+          game engines, and mesh viewers usually expect geometry made from vertices and faces.
+        </p>
+        <p>So marching cubes answers one important question:</p>
+        <div class="takeaway">
+          <strong>Given a 3D grid that says where an object exists, where is the object's surface?</strong>
+        </div>
+        <p>
+          The surface is the boundary between empty space and filled space. Marching cubes turns
+          that boundary into triangles.
+        </p>
+      </section>
+
+      <section>
+        <h2>2. Where it fits in Tiny3D-Latent</h2>
+        <p>Milestone 1 gave the project this:</p>
+        <pre><code>shape formula -> occupancy grid</code></pre>
+        <p>Milestone 2 adds this:</p>
+        <pre><code>occupancy grid -> marching cubes -> mesh</code></pre>
+        <p>The full Milestone 2 path is:</p>
+
+        <div class="flow">
+          <div>Procedural shape</div>
+          <div class="arrow">→</div>
+          <div>Occupancy grid</div>
+          <div class="arrow">→</div>
+          <div>Triangle mesh</div>
+        </div>
+
+        <p>
+          Later, the procedural shape formula will be replaced by a neural decoder:
+        </p>
+        <pre><code>latent vector -> decoder -> predicted grid -> marching cubes -> generated mesh</code></pre>
+        <p>
+          That is why this milestone matters. Marching cubes becomes the final bridge from
+          learned 3D representation to an inspectable 3D asset.
+        </p>
+      </section>
+
+      <section>
+        <h2>3. The grid is not the surface</h2>
+        <p>
+          Your grid is a sampled version of space. It does not directly store triangles, curves,
+          or surfaces. It stores values at discrete sample points.
+        </p>
+        <p>
+          The surface is hidden between those sample points.
+        </p>
+        <pre><code>outside sample: 0
+inside sample:  1
+
+surface: somewhere between them</code></pre>
+        <p>
+          For binary occupancy grids, the natural surface threshold is:
+        </p>
+        <pre><code>iso-value = 0.5</code></pre>
+        <p>Because:</p>
+        <pre><code>0 -------- 0.5 -------- 1
+empty     surface      inside</code></pre>
+        <p>
+          This threshold is also called the <strong>iso-value</strong> or <strong>level</strong>.
+          Marching cubes extracts the surface where the grid crosses that value.
+        </p>
+      </section>
+
+      <section>
+        <h2>4. Understand the 2D version first: marching squares</h2>
+        <p>
+          Before thinking in 3D, imagine a 2D grid:
+        </p>
+        <pre><code>0 0 0 0
+0 1 1 0
+0 1 1 0
+0 0 0 0</code></pre>
+        <p>
+          The boundary is between the <code>0</code> values and the <code>1</code> values.
+          A 2D algorithm called <strong>marching squares</strong> looks at one small square
+          of four samples at a time.
+        </p>
+        <pre class="diagram"><code>corner A ----- corner B
+   |              |
+   |              |
+corner C ----- corner D</code></pre>
+        <p>
+          If the left corners are outside and the right corners are inside:
+        </p>
+        <pre><code>0 ----- 1
+|       |
+0 ----- 1</code></pre>
+        <p>
+          then the boundary must pass vertically through that square. Marching squares draws
+          a line segment there.
+        </p>
+        <div class="note">
+          <strong>Marching cubes is the same idea in 3D:</strong>
+          <pre><code>marching squares -> line segments in 2D
+marching cubes   -> triangles in 3D</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <h2>5. What one cube means</h2>
+        <p>
+          Marching cubes looks at one small cube of the grid at a time. Each cube has 8 corners:
+        </p>
+        <pre class="diagram"><code>      7 -------- 6
+     /|         /|
+    4 -------- 5 |
+    | |        | |
+    | 3 -------|-2
+    |/         |/
+    0 -------- 1</code></pre>
+        <p>Each corner is classified as outside or inside:</p>
+        <pre><code>value <  iso-value -> outside
+value >= iso-value -> inside</code></pre>
+        <p>If all 8 corners are outside, there is no surface in that cube.</p>
+        <pre><code>0 0 0 0 0 0 0 0</code></pre>
+        <p>If all 8 corners are inside, there is also no surface in that cube.</p>
+        <pre><code>1 1 1 1 1 1 1 1</code></pre>
+        <p>The interesting case is mixed corners:</p>
+        <pre><code>0 0 1 1 0 0 1 1</code></pre>
+        <p>
+          Mixed corners mean the surface passes through that cube. Marching cubes then places
+          one or more triangles inside the cube.
+        </p>
+      </section>
+
+      <section>
+        <h2>6. Why triangles appear</h2>
+        <p>
+          A mesh is made of triangles. Marching cubes approximates the surface with many small
+          triangle patches.
+        </p>
+        <p>For each cube, the algorithm may emit:</p>
+        <ul>
+          <li>no triangles, if the cube is fully outside or fully inside</li>
+          <li>one triangle</li>
+          <li>two triangles</li>
+          <li>sometimes more, depending on the corner pattern</li>
+        </ul>
+        <p>
+          Then it moves to the next cube and repeats. That is why the algorithm is called
+          <strong>marching</strong> cubes.
+        </p>
+        <pre><code>visit cube
+classify corners
+emit triangles
+move to next cube
+repeat</code></pre>
+      </section>
+
+      <section>
+        <h2>7. The lookup table idea</h2>
+        <p>
+          A cube has 8 corners. Each corner can be outside or inside.
+        </p>
+        <pre><code>2^8 = 256 possible corner patterns</code></pre>
+        <p>
+          Marching cubes uses a lookup table that maps each pattern to a triangle arrangement:
+        </p>
+        <pre><code>corner pattern -> crossed edges -> triangles</code></pre>
+        <p>
+          You do not need to memorize this table. The key idea is simpler:
+        </p>
+        <div class="takeaway">
+          The surface exists where neighboring samples cross the iso-value.
+        </div>
+      </section>
+
+      <section>
+        <h2>8. Edge interpolation</h2>
+        <p>
+          Suppose two neighboring corners have these values:
+        </p>
+        <pre><code>corner A = 0
+corner B = 1
+iso      = 0.5</code></pre>
+        <p>
+          The surface lies halfway between them:
+        </p>
+        <pre><code>A -------- surface -------- B
+0            0.5            1</code></pre>
+        <p>
+          So marching cubes places a mesh vertex halfway along that edge.
+        </p>
+        <p>
+          For binary occupancy grids, this is often halfway between empty and filled samples.
+          For smoother fields, such as SDFs, interpolation becomes more precise.
+        </p>
+        <pre><code>corner A = -0.2
+corner B =  0.8
+iso      =  0.0</code></pre>
+        <p>
+          In that case, the surface is closer to A than B. This is one reason SDF or TSDF meshes
+          can look smoother than binary occupancy meshes.
+        </p>
+      </section>
+
+      <section>
+        <h2>9. Occupancy vs SDF / TSDF</h2>
+        <p>
+          Right now your project uses occupancy:
+        </p>
+        <pre><code>0 = outside
+1 = inside</code></pre>
+        <p>
+          Occupancy is simple and good for Milestone 2, but it only says whether a sample is
+          inside or outside. It does not say how far that sample is from the surface.
+        </p>
+        <p>An SDF stores signed distance:</p>
+        <pre><code>negative = inside
+zero     = surface
+positive = outside</code></pre>
+        <table>
+          <thead>
+            <tr>
+              <th>Representation</th>
+              <th>What it stores</th>
+              <th>Surface level</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Occupancy</td>
+              <td>Inside / outside</td>
+              <td><code>0.5</code></td>
+            </tr>
+            <tr>
+              <td>SDF / TSDF</td>
+              <td>Signed distance to the surface</td>
+              <td><code>0.0</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <p>
+          For now, occupancy is enough. TSDF can be treated as a later upgrade once the basic
+          mesh extraction path is clear.
+        </p>
+      </section>
+
+      <section>
+        <h2>10. Why the mesh may look blocky</h2>
+        <p>
+          Your current grid resolution is only <code>32 x 32 x 32</code>. That means the algorithm
+          only has 32 samples along each axis.
+        </p>
+        <p>
+          Marching cubes can turn those samples into a mesh, but it cannot recover detail that was
+          never present in the grid.
+        </p>
+        <ul>
+          <li>Round objects may look faceted.</li>
+          <li>Sharp edges may look stair-stepped.</li>
+          <li>Thin parts may disappear.</li>
+          <li>Torus holes may look rough at low resolution.</li>
+        </ul>
+        <p>Increasing resolution helps, but it is more expensive:</p>
+        <pre><code>32^3 =  32,768 voxels
+64^3 = 262,144 voxels</code></pre>
+        <div class="warning">
+          <strong>Important:</strong> <code>32^3</code> is not chosen because it gives beautiful
+          meshes. It is chosen because it is cheap enough for learning, testing, and iteration.
+        </div>
+      </section>
+
+      <section>
+        <h2>11. Why padding matters</h2>
+        <p>
+          Marching cubes needs to see the transition between outside and inside.
+        </p>
+        <p>
+          If an object touches the edge of the grid, there may be no outside sample beyond the
+          border. That can produce an open mesh.
+        </p>
+        <p>Padding adds an empty shell around the original grid:</p>
+        <pre><code>before:
+object may touch the array boundary
+
+after:
+empty border surrounds the original grid</code></pre>
+        <p>Conceptually:</p>
+        <pre><code>0 0 0 0 0 0
+0 original grid 0
+0 original grid 0
+0 0 0 0 0 0</code></pre>
+        <p>
+          Now even if the object touches the original grid boundary, marching cubes still sees
+          empty space around it and can close the surface.
+        </p>
+      </section>
+
+      <section>
+        <h2>12. The project-specific coordinate detail</h2>
+        <p>
+          Your dataset code builds coordinates in normalized world space:
+        </p>
+        <pre><code>x, y, z are sampled from -1.0 to 1.0</code></pre>
+        <p>
+          But the marching cubes library works on array indices. So it naturally returns vertices
+          in coordinates like:
+        </p>
+        <pre><code>0, 1, 2, ..., 31</code></pre>
+        <p>
+          That is not the coordinate system your shapes were defined in. For the mesh to match
+          the rest of your project, the extracted vertices need to be converted back into:
+        </p>
+        <pre><code>[-1, 1] x [-1, 1] x [-1, 1]</code></pre>
+        <p>
+          This is an implementation detail, but conceptually it means:
+        </p>
+        <div class="note">
+          Marching cubes finds the surface in grid coordinates. Your project must then translate
+          that surface back into the world coordinates used by the dataset.
+        </div>
+      </section>
+
+      <section>
+        <h2>13. A useful mental model</h2>
+        <p>
+          Marching cubes is a translator.
+        </p>
+        <p>It translates from this language:</p>
+        <pre><code>At this point in space, am I inside or outside?</code></pre>
+        <p>to this language:</p>
+        <pre><code>Here are the triangles that form the visible surface.</code></pre>
+        <p>
+          It does not understand spheres, cubes, capsules, or tori. It only understands a scalar
+          field and a threshold.
+        </p>
+        <p>
+          That is what makes it useful. The source of the field can change later:
+        </p>
+        <ul>
+          <li>procedural function</li>
+          <li>occupancy grid</li>
+          <li>SDF or TSDF</li>
+          <li>neural network decoder output</li>
+        </ul>
+        <p>
+          The mesh extraction idea remains the same.
+        </p>
+      </section>
+
+      <section>
+        <h2>14. What to understand before coding</h2>
+        <p>
+          Before implementing Milestone 2, the core ideas to be comfortable with are:
+        </p>
+        <ol>
+          <li>A voxel grid is not the mesh. It is sampled space.</li>
+          <li>The surface exists where grid values cross a threshold.</li>
+          <li>Marching cubes processes one small cube at a time.</li>
+          <li>Mixed inside/outside cube corners produce triangles.</li>
+          <li>Resolution controls how much detail the mesh can recover.</li>
+          <li>Padding helps close surfaces at the boundary.</li>
+          <li>The extracted vertices must be mapped back into the project coordinate system.</li>
+        </ol>
+        <div class="takeaway">
+          If these ideas make sense, the implementation will feel like a direct translation of the
+          concept rather than a mysterious library call.
+        </div>
+      </section>
+
+      <section>
+        <h2>15. Recommended resources</h2>
+        <p>
+          These are resources worth using slowly. I would not read all of them in one sitting.
+          Use them in layers: visual intuition first, then algorithm detail, then implementation.
+        </p>
+
+        <h3>Best first video</h3>
+        <ul>
+          <li>
+            <a href="https://www.youtube.com/watch?v=M3iI2l0ltbE" target="_blank" rel="noopener">
+              Sebastian Lague — Coding Adventure: Marching Cubes
+            </a>
+            <br />
+            <span class="small">
+              Probably the best first watch. It explains the algorithm visually and then uses it
+              in a procedural world. Watch first for intuition, not for copying code.
+            </span>
+          </li>
+        </ul>
+
+        <h3>Best written explanation of the classic algorithm</h3>
+        <ul>
+          <li>
+            <a href="https://www.paulbourke.net/geometry/polygonise/" target="_blank" rel="noopener">
+              Paul Bourke — Polygonising a Scalar Field
+            </a>
+            <br />
+            <span class="small">
+              A classic marching cubes explanation. It shows cube indexing, edge interpolation,
+              lookup tables, and source-style pseudocode. This is excellent after you understand
+              the high-level idea.
+            </span>
+          </li>
+        </ul>
+
+        <h3>Good step-by-step tutorial series</h3>
+        <ul>
+          <li>
+            <a href="https://poly-coding.github.io/marching-cubes/" target="_blank" rel="noopener">
+              Poly Coding — Marching Cubes Tutorial Series
+            </a>
+            <br />
+            <span class="small">
+              A practical Unity / compute-shader oriented series. Even though this project uses
+              Python first, the series is useful because it walks through mesh generation and
+              terrain-style use cases.
+            </span>
+          </li>
+        </ul>
+
+        <h3>Useful 2D prerequisite</h3>
+        <ul>
+          <li>
+            <a href="https://www.youtube.com/watch?v=0ZONMNUKTfU" target="_blank" rel="noopener">
+              The Coding Train — Coding Marching Squares
+            </a>
+            <br />
+            <span class="small">
+              Marching squares is the 2D cousin of marching cubes. If the 3D version feels too
+              abstract, watch this first. Understanding marching squares makes marching cubes much
+              easier.
+            </span>
+          </li>
+        </ul>
+
+        <h3>Python library reference for this project</h3>
+        <ul>
+          <li>
+            <a href="https://scikit-image.org/docs/stable/api/skimage.measure.html#skimage.measure.marching_cubes" target="_blank" rel="noopener">
+              scikit-image — <code>skimage.measure.marching_cubes</code>
+            </a>
+            <br />
+            <span class="small">
+              This is the API we are likely to use for Milestone 2. Read this when you want to
+              understand the function arguments and return values.
+            </span>
+          </li>
+          <li>
+            <a href="https://scikit-image.org/docs/stable/auto_examples/edges/plot_marching_cubes.html" target="_blank" rel="noopener">
+              scikit-image Example — Marching Cubes
+            </a>
+            <br />
+            <span class="small">
+              A compact Python example showing marching cubes on volumetric data. This is closer
+              to Tiny3D-Latent than Unity tutorials are.
+            </span>
+          </li>
+        </ul>
+
+        <h3>Original paper and deeper graphics references</h3>
+        <ul>
+          <li>
+            <a href="https://people.eecs.berkeley.edu/~jrs/meshpapers/LorensenCline.pdf" target="_blank" rel="noopener">
+              Lorensen and Cline — Marching Cubes: A High Resolution 3D Surface Construction Algorithm
+            </a>
+            <br />
+            <span class="small">
+              The original 1987 SIGGRAPH paper. You do not need to read this first, but it is
+              useful later for historical and technical context.
+            </span>
+          </li>
+          <li>
+            <a href="https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry/chapter-1-generating-complex-procedural-terrains-using-gpu" target="_blank" rel="noopener">
+              GPU Gems 3, Chapter 1 — Generating Complex Procedural Terrains Using the GPU
+            </a>
+            <br />
+            <span class="small">
+              More advanced. Useful when you want to see how marching cubes connects to procedural
+              terrain, GPU execution, and real-time mesh generation.
+            </span>
+          </li>
+        </ul>
+
+        <h3>Suggested order</h3>
+        <ol>
+          <li>Watch Sebastian Lague for visual intuition.</li>
+          <li>If needed, watch The Coding Train marching squares video for the simpler 2D version.</li>
+          <li>Read Paul Bourke to understand cube cases, edge interpolation, and lookup tables.</li>
+          <li>Read the scikit-image docs when ready to connect the idea to Python implementation.</li>
+          <li>Save the original paper and GPU Gems chapter for deeper study later.</li>
+        </ol>
+      </section>
+
+      <p class="small">
+        File: <code>docs/marching_cubes_explained_for_milestone2.html</code>
+      </p>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Milestone 2 Plan — 3D Representation and Mesh Extraction</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --heading: #e6edf3;
+      --accent: #58a6ff;
+      --accent-dim: #1f6feb;
+      --muted: #8b949e;
+      --success: #3fb950;
+      --warn: #d29922;
+      --code-bg: #21262d;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 2rem 1rem;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 0.5rem 0;
+      font-size: 2rem;
+      color: var(--heading);
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem 4rem;
+    }
+
+    section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    h2 {
+      color: var(--accent);
+      font-size: 1.35rem;
+      margin-top: 0;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+
+    h3 {
+      color: var(--heading);
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    p { margin: 0.5rem 0; }
+
+    ul, ol {
+      padding-left: 1.5rem;
+      margin: 0.5rem 0;
+    }
+
+    li { margin: 0.35rem 0; }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.9em;
+      background: var(--code-bg);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      color: var(--accent);
+    }
+
+    pre {
+      background: var(--code-bg);
+      padding: 1rem;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin: 0.75rem 0;
+    }
+
+    pre code {
+      background: none;
+      padding: 0;
+      color: var(--text);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.8rem;
+      text-align: left;
+    }
+
+    th {
+      background: var(--code-bg);
+      color: var(--heading);
+      font-weight: 600;
+    }
+
+    tr:nth-child(even) { background: var(--code-bg); }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .badge.required { background: rgba(88, 166, 255, 0.15); color: var(--accent); }
+    .badge.optional { background: rgba(139, 148, 158, 0.15); color: var(--muted); }
+    .badge.deferred { background: rgba(217, 153, 34, 0.15); color: var(--warn); }
+
+    .note {
+      background: rgba(88, 166, 255, 0.08);
+      border-left: 3px solid var(--accent);
+      padding: 1rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+    }
+
+    .warn-box {
+      background: rgba(217, 153, 34, 0.08);
+      border-left: 3px solid var(--warn);
+      padding: 1rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+    }
+
+    .path {
+      font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .command {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      padding: 0.75rem 1rem;
+      border-radius: 6px;
+      font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+      font-size: 0.9rem;
+      margin: 0.75rem 0;
+      color: var(--heading);
+    }
+
+    .tree {
+      font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+      font-size: 0.9rem;
+      white-space: pre;
+      color: var(--muted);
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: var(--bg);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    .step-title {
+      font-weight: 600;
+      color: var(--heading);
+      font-size: 1.1rem;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Milestone 2 Plan</h1>
+    <p>3D Representation and Mesh Extraction &mdash; Tiny3D-Latent</p>
+  </header>
+
+  <main>
+
+    <section>
+      <h2>Goal</h2>
+      <p>Choose the 3D format the model will learn and <strong>prove it can become a mesh</strong>.</p>
+      <p>The pipeline established in this milestone:</p>
+      <pre><code>occupancy grid (.npy)  ->  marching cubes  ->  cleanup  ->  mesh.obj  ->  turntable GIF</code></pre>
+      <p>This milestone exists because modern 3D generation is not only about tensors. The output must eventually become an inspectable, loadable, and renderable 3D asset. Establishing that asset path <em>before</em> training any neural network prevents debugging representation bugs and model bugs simultaneously.</p>
+    </section>
+
+    <section>
+      <h2>Dependencies</h2>
+      <p>Install the following packages (all are lightweight and headless-friendly):</p>
+      <div class="command">pip install scikit-image trimesh imageio</div>
+      <table>
+        <tr><th>Package</th><th>Role in Milestone 2</th></tr>
+        <tr><td><code>scikit-image</code></td><td><code>skimage.measure.marching_cubes</code></td></tr>
+        <tr><td><code>trimesh</code></td><td>Mesh loading, cleanup, export, and statistics</td></tr>
+        <tr><td><code>imageio</code></td><td>Assemble matplotlib frames into a turntable GIF</td></tr>
+      </table>
+      <div class="note">
+        <strong>Note:</strong> <code>pyrender</code> is <em>not</em> required. The turntable is built via matplotlib 3D + imageio, which works reliably on macOS without a display server.
+      </div>
+    </section>
+
+    <section>
+      <h2>Package Structure</h2>
+      <pre class="tree">tiny3dlatent/
+  representation/
+    __init__.py
+    marching_cubes.py       # occupancy grid -> raw trimesh
+    cleanup.py              # merge vertices, remove degenerates, normals
+    export.py               # mesh -> .obj
+    stats.py                # vertex/face count, bounds, watertightness
+    preview.py              # static multi-angle render + turntable GIF
+  experiments/
+    mesh_extraction.py      # Milestone 2 CLI entry point
+configs/
+  mesh_extraction.json      # M2 config
+tests/
+  test_mesh_extraction.py   # unit tests</pre>
+    </section>
+
+    <section>
+      <h2>Step-by-Step Implementation</h2>
+
+      <h3>Step 1: Marching Cubes Extraction</h3>
+      <p><strong>File:</strong> <code class="path">tiny3dlatent/representation/marching_cubes.py</code></p>
+      <ul>
+        <li>Accept a <code>32&sup3;</code> uint8 occupancy grid and an iso-value (default <code>0.5</code>).</li>
+        <li><strong>Pad</strong> the grid with a 1-voxel empty border before extraction. This prevents open holes when a shape touches the grid boundary.</li>
+        <li>Run <code>skimage.measure.marching_cubes</code> to obtain vertices, faces, and normals.</li>
+        <li>Return a <code>trimesh.Trimesh</code>.</li>
+      </ul>
+
+      <h3>Step 2: Basic Mesh Cleanup</h3>
+      <p><strong>File:</strong> <code class="path">tiny3dlatent/representation/cleanup.py</code></p>
+      <p>Raw marching cubes output is often broken. Apply automatic hygiene in this order:</p>
+      <ol>
+        <li><code>mesh.merge_vertices()</code> &mdash; remove duplicate vertices.</li>
+        <li><code>mesh.remove_degenerate_faces()</code> &mdash; remove zero-area triangles.</li>
+        <li><code>mesh.remove_unreferenced_vertices()</code> &mdash; cleanup after face removal.</li>
+        <li><code>mesh.fix_normals()</code> &mdash; ensure consistent, outward-facing normals.</li>
+      </ol>
+      <p>Return the cleaned mesh. This keeps previews trustworthy and game-engine imports clean.</p>
+
+      <h3>Step 3: OBJ Export</h3>
+      <p><strong>File:</strong> <code class="path">tiny3dlatent/representation/export.py</code></p>
+      <ul>
+        <li>Export cleaned <code>trimesh.Trimesh</code> to a <code>.obj</code> file.</li>
+        <li><code>trimesh.exchange.obj.export_obj</code> handles vertices, faces, and normals automatically.</li>
+        <li>No material file (<code>.mtl</code>) is produced yet &mdash; geometry only.</li>
+      </ul>
+      <div class="note">
+        <strong>Why OBJ now?</strong> OBJ is universally supported by game engines (Unity, Unreal, Godot), Blender, and online 3D viewers. It is the safest baseline for an inspectable asset.
+      </div>
+
+      <h3>Step 4: Mesh Statistics</h3>
+      <p><strong>File:</strong> <code class="path">tiny3dlatent/representation/stats.py</code></p>
+      <p>Compute and return the following dictionary for every exported mesh:</p>
+      <table>
+        <tr><th>Field</th><th>Type</th><th>Why it matters</th></tr>
+        <tr><td><code>vertex_count</code></td><td>int</td><td>Complexity baseline for generated shapes</td></tr>
+        <tr><td><code>face_count</code></td><td>int</td><td>Rendering cost proxy</td></tr>
+        <tr><td><code>bounds_min / bounds_max</code></td><td>[x, y, z]</td><td>Verify shape fits inside normalized unit cube</td></tr>
+        <tr><td><code>volume</code></td><td>float</td><td>Sanity check (positive for closed meshes)</td></tr>
+        <tr><td><code>surface_area</code></td><td>float</td><td>Another sanity check</td></tr>
+        <tr><td><code>is_watertight</code></td><td>bool</td><td>Critical for 3D printing and some game uses</td></tr>
+        <tr><td><code>file_size_bytes</code></td><td>int</td><td>Storage cost of exported asset</td></tr>
+      </table>
+      <p>Save the dictionary as <code>mesh_stats.json</code> next to each <code>mesh.obj</code>.</p>
+
+      <h3>Step 5: Turntable GIF Preview</h3>
+      <p><strong>File:</strong> <code class="path">tiny3dlatent/representation/preview.py</code></p>
+      <p>Implementation strategy (matplotlib 3D + imageio, no display server required):</p>
+      <ol>
+        <li>Render the mesh using <code>matplotlib.axes.Axes.plot_trisurf</code>.</li>
+        <li>Rotate the camera azimuth from <code>0&deg;</code> to <code>360&deg;</code> in <code>N</code> steps (default 36 frames = 10&deg; per step).</li>
+        <li>Capture each frame to an in-memory RGB buffer.</li>
+        <li>Assemble all frames into a GIF using <code>imageio.mimsave</code>.</li>
+      </ol>
+      <p>Benefits: guaranteed to work on macOS, no OpenGL context needed, easy to embed in reports.</p>
+      <p class="warn-box"><strong>Future upgrade:</strong> If <code>pyrender</code> installs cleanly later, the same <code>preview.py</code> interface can be swapped to a shaded, lit renderer without changing callers.</p>
+
+      <h3>Step 6: CLI Entry Point</h3>
+      <p><strong>File:</strong> <code class="path">tiny3dlatent/experiments/mesh_extraction.py</code></p>
+      <p>Command:</p>
+      <div class="command">python -m tiny3dlatent.experiments.mesh_extraction --config configs/mesh_extraction.json</div>
+      <p>Config (<code>configs/mesh_extraction.json</code>):</p>
+      <pre><code>{
+  "source_dataset": "data/procedural",
+  "split": "val",
+  "num_examples": 6,
+  "resolution": 32,
+  "iso_value": 0.5,
+  "cleanup": true,
+  "turntable_frames": 36,
+  "random_seed": 0
+}</code></pre>
+      <p>Behavior:</p>
+      <ol>
+        <li>Read <code>data/procedural/metadata.json</code>.</li>
+        <li>Filter to the chosen split (<code>train</code> or <code>val</code>).</li>
+        <li>Pick <code>num_examples</code> records reproducibly using <code>random_seed</code>.</li>
+        <li>For each shape:
+          <ul>
+            <li>Load the <code>.npy</code> occupancy grid.</li>
+            <li>Extract mesh via marching cubes.</li>
+            <li>Run cleanup (if <code>cleanup: true</code>).</li>
+            <li>Export <code>mesh.obj</code>.</li>
+            <li>Compute stats &rarr; <code>mesh_stats.json</code>.</li>
+            <li>Render turntable &rarr; <code>turntable.gif</code>.</li>
+          </ul>
+        </li>
+        <li>Write a <code>run_summary.json</code> aggregating all per-shape stats for easy comparison.</li>
+      </ol>
+
+      <h3>Step 7: Output Directory Layout</h3>
+      <p>Every run creates a timestamped folder under <code>outputs/runs/</code>:</p>
+      <pre class="tree">outputs/runs/20260517-143000-mesh-extraction/
+  metadata.json            # timestamp, device, config path
+  config.json              # copy of the input config
+  run_summary.json         # aggregated stats across all examples
+  shape_000001/
+    mesh.obj
+    turntable.gif
+    mesh_stats.json
+  shape_000002/
+    mesh.obj
+    turntable.gif
+    mesh_stats.json
+  ...</pre>
+      <p>This structure mirrors the Milestone 1 run folders and stays compatible with later experiment tracking.</p>
+    </section>
+
+    <section>
+      <h2>Test Plan</h2>
+      <p><strong>File:</strong> <code class="path">tests/test_mesh_extraction.py</code></p>
+      <table>
+        <tr><th>Test name</th><th>What it validates</th></tr>
+        <tr><td><code>test_marching_cubes_produces_valid_trimesh</code></td><td>Known occupancy grid (e.g., centered sphere) returns a <code>trimesh.Trimesh</code> with expected vertex/face count range.</td></tr>
+        <tr><td><code>test_cleanup_reduces_or_preserves_vertices</code></td><td><code>clean_mesh</code> never increases the vertex count and never removes all faces.</td></tr>
+        <tr><td><code>test_export_obj_is_loadable</code></td><td>Exported <code>.obj</code> file exists and <code>trimesh.load()</code> reads it back without error.</td></tr>
+        <tr><td><code>test_stats_are_sensible</code></td><td>Mesh volume &gt; 0, bounds fit within the <code>[-1, 1]</code> normalized cube, face count &gt; 0.</td></tr>
+        <tr><td><code>test_turntable_gif_is_created_with_expected_frames</code></td><td><code>render_turntable_gif</code> writes a valid GIF with the requested frame count.</td></tr>
+        <tr><td><code>test_padding_prevents_boundary_holes</code></td><td>A sphere that touches the grid edge still produces a closed mesh after extraction.</td></tr>
+      </table>
+    </section>
+
+    <section>
+      <h2>Deferred Work (Post-Milestone 2)</h2>
+      <p>These items are intentionally <strong>out of scope</strong> for the initial implementation. They can be added later without changing the core pipeline:</p>
+      <ul>
+        <li><span class="badge deferred">Deferred</span> <strong>TSDF representation:</strong> A <code>tiny3dlatent/representation/tsdf.py</code> module that converts occupancy grids to signed-distance grids using <code>scipy.ndimage.distance_transform_edt</code>, then runs marching cubes. This would allow a side-by-side comparison of blocky occupancy meshes vs. smoother TSDF meshes.</li>
+        <li><span class="badge deferred">Deferred</span> <strong>Shaded turntable:</strong> Swap the matplotlib renderer for a <code>pyrender</code>-based lit renderer if/when it installs cleanly.</li>
+        <li><span class="badge deferred">Deferred</span> <strong>Material export:</strong> Add a basic <code>.mtl</code> file so the OBJ carries a diffuse color based on the shape label (e.g., red sphere gets a red material). This is useful for Milestone 7 (Color and Simple Material Channels).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Design Decisions</h2>
+
+      <h3>Why Cleanup Belongs in Milestone 2</h3>
+      <p>Milestone 2 is responsible for producing a <em>trustworthy, inspectable asset</em>. Raw marching cubes output often contains duplicate vertices and degenerate faces. Without cleanup:</p>
+      <ul>
+        <li>Mesh statistics (vertex count, volume, watertightness) are unreliable.</li>
+        <li>Game engines may import with visible seams or missing faces.</li>
+        <li>You may waste time in Milestones 3&ndash;5 debugging "bad autoencoder outputs" that are actually export artifacts.</li>
+      </ul>
+      <p>Basic cleanup is ~4 lines of <code>trimesh</code> calls. It is hygiene, not analysis. Milestone 8 will later use the same cleanup code but add <em>diagnostic metrics</em> (connected components, IoU, failure classification) on top.</p>
+
+      <h3>Why Matplotlib Instead of PyRender for the Turntable</h3>
+      <p><code>pyrender</code> requires an OpenGL context and a display server, which is fragile on headless and macOS environments. Matplotlib 3D is slower and less photorealistic, but it is <strong>guaranteed to work</strong> everywhere. The turntable GIF is a proof-of-3D-inspection, not a portfolio beauty render. If higher visual quality is needed later, the renderer can be swapped behind the same function signature.</p>
+
+      <h3>Why 6 Validation Examples</h3>
+      <p>Validation split already exists from Milestone 1. Six shapes is enough to cover the six shape families (sphere, cube, rounded_box, cylinder, capsule, torus) and verify that every family extracts cleanly. It is small enough to run in seconds but large enough to catch shape-specific bugs (e.g., a torus with a thin ring might need a finer iso-value).</p>
+    </section>
+
+    <section>
+      <h2>Devlog 2 Angle</h2>
+      <p>Once the milestone is complete, the devlog should be titled:</p>
+      <pre><code>Devlog 2: Turning a voxel grid into my first generated mesh</code></pre>
+      <p>Key points to cover:</p>
+      <ul>
+        <li>Why 2D slice previews from Milestone 1 were misleading.</li>
+        <li>How marching cubes turns a binary grid into a surface.</li>
+        <li>Why padding the grid prevents boundary holes.</li>
+        <li>What cleanup fixes and why it matters for game-engine import.</li>
+        <li>Comparison of stats across shape families (e.g., torus vs. sphere face counts).</li>
+        <li>Any shapes that extracted poorly and why.</li>
+      </ul>
+    </section>
+
+    <hr>
+
+    <section style="text-align:center; border: none; background: transparent;">
+      <p style="color: var(--muted);">Plan generated for Milestone 2 of the Tiny3D-Latent project.</p>
+      <p style="color: var(--muted); font-size: 0.9rem;">Ready for implementation.</p>
+    </section>
+
+  </main>
+</body>
+</html>
