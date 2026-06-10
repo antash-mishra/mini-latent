@@ -19,6 +19,12 @@ Plan reviewed against implementation: 2026-06-10
   `tiny3dlatent.models.train_ae`. Overfit-8 sanity reaches IoU 0.99; the full run reaches
   val IoU 0.87 (> 0.85 target) with all shape types recognizable in `recon_grid.png`; see
   `tests/test_autoencoder.py` and `outputs/runs/20260610-160210-autoencoder/`.
+- Milestone 4: complete. `tiny3dlatent/models/vae.py` + `train_vae.py` add mean/log-variance
+  heads, reparameterization, and KL warmup to `kl_weight=1e-4`. Val IoU 0.84 from mean
+  latents (vs 0.87 AE), 0.81 from sampled latents, KL 117 nats with all 128 dims active (no
+  collapse). `interpolate_cli.py` renders smooth cube->cylinder / sphere->cube /
+  torus->capsule strips; see `tests/test_vae.py`, `outputs/runs/20260610-161522-vae/`, and
+  `outputs/runs/20260610-162631-vae-interpolation/`.
 
 ## Short Answer
 

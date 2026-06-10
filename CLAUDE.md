@@ -52,6 +52,10 @@ Always use the repo venv interpreter `./venv/bin/python`.
 # Overfit-8 sanity check before a full run
 ./venv/bin/python -m tiny3dlatent.models.train_ae --overfit 8 --epochs 200
 
+# Train the 3D VAE, then render latent interpolation strips from its checkpoint
+./venv/bin/python -m tiny3dlatent.models.train_vae --config configs/vae.json
+./venv/bin/python -m tiny3dlatent.models.interpolate_cli --steps 8
+
 # Tests
 ./venv/bin/python -m pytest tests/
 
