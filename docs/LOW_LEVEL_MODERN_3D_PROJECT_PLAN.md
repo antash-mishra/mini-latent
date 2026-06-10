@@ -25,6 +25,13 @@ Plan reviewed against implementation: 2026-06-10
   collapse). `interpolate_cli.py` renders smooth cube->cylinder / sphere->cube /
   torus->capsule strips; see `tests/test_vae.py`, `outputs/runs/20260610-161522-vae/`, and
   `outputs/runs/20260610-162631-vae-interpolation/`.
+- Milestone 5: complete. `tiny3dlatent/models/flow.py` + `train_flow.py` train a
+  class-conditioned rectified-flow MLP over standardized VAE latents (~15s);
+  `generate_cli.py` samples per class, decodes through the frozen VAE, and meshes the
+  results. All 96/96 generated samples (16 per class) are non-empty, single-component, and
+  inside their class voxel range, with clear class identity in `generated_mesh_grid.png`;
+  see `tests/test_latent_flow.py`, `outputs/runs/20260610-163025-latent-flow/`, and
+  `outputs/runs/20260610-163053-latent-generation/`.
 
 ## Short Answer
 
