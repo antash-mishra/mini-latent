@@ -156,7 +156,9 @@ def _build_stats(records: list[dict[str, Any]]) -> dict[str, Any]:
         "filled_voxels": {
             "min": min(int(record["filled_voxels"]) for record in records),
             "max": max(int(record["filled_voxels"]) for record in records),
-            "mean": float(np.mean([int(record["filled_voxels"]) for record in records])),
+            "mean": float(
+                np.mean([int(record["filled_voxels"]) for record in records])
+            ),
         },
     }
 

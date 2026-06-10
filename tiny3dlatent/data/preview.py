@@ -71,4 +71,3 @@ def _colorize_slice(slice_2d: np.ndarray, color: str) -> np.ndarray:
     image = np.full((*slice_2d.shape, 3), 238, dtype=np.uint8)
     image[slice_2d.astype(bool)] = rgb
     return image
-

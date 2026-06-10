@@ -155,9 +155,7 @@ def _rounded_box(x: np.ndarray, y: np.ndarray, z: np.ndarray) -> np.ndarray:
     qy = np.abs(y) - (1.0 - radius)
     qz = np.abs(z) - (1.0 - radius)
     outside = np.sqrt(
-        np.maximum(qx, 0.0) ** 2
-        + np.maximum(qy, 0.0) ** 2
-        + np.maximum(qz, 0.0) ** 2
+        np.maximum(qx, 0.0) ** 2 + np.maximum(qy, 0.0) ** 2 + np.maximum(qz, 0.0) ** 2
     )
     inside = np.minimum(np.maximum.reduce([qx, qy, qz]), 0.0)
     return (outside + inside - radius) <= 0.0

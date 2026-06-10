@@ -48,7 +48,9 @@ def preview_dataset(
         grid_file = Path(record["grid_file"])
         if not grid_file.is_absolute():
             # Prefer reconstructing from split/id for portability
-            grid_file = dataset_dir / str(record["split"]) / f"{record['id']}_occupancy.npy"
+            grid_file = (
+                dataset_dir / str(record["split"]) / f"{record['id']}_occupancy.npy"
+            )
             if not grid_file.exists():
                 grid_file = Path(record["grid_file"])
         occupancy = np.load(grid_file)
@@ -81,7 +83,9 @@ def preview_dataset(
 
 
 def _parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Preview an existing procedural dataset.")
+    parser = argparse.ArgumentParser(
+        description="Preview an existing procedural dataset."
+    )
     parser.add_argument(
         "--dataset-dir",
         type=Path,

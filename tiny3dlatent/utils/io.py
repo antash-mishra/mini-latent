@@ -20,4 +20,3 @@ def write_json(path: Path, data: dict[str, Any] | list[Any]) -> None:
 def read_json(path: Path) -> dict[str, Any]:
     with path.open("r", encoding="utf-8") as file:
         return json.load(file)
-

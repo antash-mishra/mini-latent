@@ -10,4 +10,3 @@ def make_grid(res=32):
     lin = np.linspace(-1, 1, res)
     x, y, z = np.meshgrid(lin, lin, lin)
     return x, y, z
-

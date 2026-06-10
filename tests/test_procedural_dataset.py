@@ -119,4 +119,3 @@ def test_generation_is_deterministic_for_same_seed(tmp_path: Path) -> None:
             np.load(first_record["grid_file"]),
             np.load(second_record["grid_file"]),
         )
-

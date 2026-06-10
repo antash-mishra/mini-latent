@@ -15,4 +15,3 @@ def make_grid(resolution: int = 32) -> tuple[np.ndarray, np.ndarray, np.ndarray]
 def occupancy_to_uint8(occupancy: np.ndarray) -> np.ndarray:
     """Convert a boolean occupancy mask to compact uint8 storage."""
     return occupancy.astype(np.uint8, copy=False)
-

@@ -22,4 +22,3 @@ def label_for(color: str, size: str, descriptor: str, shape_type: str) -> str:
         parts.append(descriptor)
     parts.append(shape_type.replace("_", " "))
     return " ".join(parts)
-
