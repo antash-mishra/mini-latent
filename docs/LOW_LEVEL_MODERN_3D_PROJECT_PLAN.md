@@ -32,6 +32,15 @@ Plan reviewed against implementation: 2026-06-10
   inside their class voxel range, with clear class identity in `generated_mesh_grid.png`;
   see `tests/test_latent_flow.py`, `outputs/runs/20260610-163025-latent-flow/`, and
   `outputs/runs/20260610-163053-latent-generation/`.
+- Milestone 6: complete. `tiny3dlatent/text/parser.py` parses the label vocabulary (unknown
+  words raise a clear error); `ConditionedLatentFlow` + `train_text_flow.py` condition on
+  shape/color/size/descriptor embeddings with 10% condition dropout for classifier-free
+  guidance; `text_generate_cli.py` generates from prompts (guidance 2.0), saves
+  `.prompt.json` metadata next to each OBJ, and checks tall/wide aspect ratios (8/8 both).
+  See `tests/test_text_conditioning.py` and `outputs/runs/20260610-194345-text-generation/`.
+  Note: the production VAE is now the 80-epoch `outputs/runs/20260610-192013-vae/` (sampled
+  IoU 0.833 vs 0.814; mean IoU unchanged within noise — the decoder is resolution-bound,
+  see Milestone 9).
 
 ## Short Answer
 

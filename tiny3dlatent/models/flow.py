@@ -87,3 +87,76 @@ def rectified_flow_pair(
     x_t = (1.0 - t_column) * noise + t_column * latents
     return x_t, latents - noise
 
+
+class ConditionedLatentFlow(nn.Module):
+    """Rectified flow conditioned on multiple prompt attributes.
+
+    Each attribute (shape type, color, size, descriptor) gets its own embedding
+    table with one extra "unspecified" row at index `vocab_size`, used both for
+    prompts that omit the attribute and for classifier-free guidance dropout.
+    """
+
+    def __init__(
+        self,
+        *,
+        latent_dim: int = 128,
+        attribute_sizes: tuple[int, ...] = (6, 6, 3, 5),
+        attribute_dim: int = 32,
+        hidden_dim: int = 256,
+        time_dim: int = 64,
+        hidden_layers: int = 3,
+    ) -> None:
+        super().__init__()
+        self.latent_dim = latent_dim
+        self.time_dim = time_dim
+        self.attribute_sizes = tuple(attribute_sizes)
+        self.embeddings = nn.ModuleList(
+            nn.Embedding(size + 1, attribute_dim) for size in attribute_sizes
+        )
+        condition_dim = attribute_dim * len(attribute_sizes)
+        layers: list[nn.Module] = [
+            nn.Linear(latent_dim + time_dim + condition_dim, hidden_dim),
+            nn.SiLU(),
+        ]
+        for _ in range(hidden_layers - 1):
+            layers += [nn.Linear(hidden_dim, hidden_dim), nn.SiLU()]
+        layers.append(nn.Linear(hidden_dim, latent_dim))
+        self.network = nn.Sequential(*layers)
+
+    def null_attributes(self, count: int, device: torch.device) -> torch.Tensor:
+        """`(count, A)` attribute indices that are all "unspecified"."""
+        nulls = torch.tensor(self.attribute_sizes, device=device)
+        return nulls.expand(count, -1).contiguous()
+
+    def forward(
+        self, z_t: torch.Tensor, t: torch.Tensor, attributes: torch.Tensor
+    ) -> torch.Tensor:
+        embedded = [
+            embedding(attributes[:, index])
+            for index, embedding in enumerate(self.embeddings)
+        ]
+        features = torch.cat([z_t, time_embedding(t, self.time_dim), *embedded], dim=1)
+        return self.network(features)
+
+    @torch.no_grad()
+    def sample(
+        self,
+        attributes: torch.Tensor,
+        *,
+        steps: int = 50,
+        guidance_scale: float = 1.0,
+    ) -> torch.Tensor:
+        """Euler-integrate from noise, optionally with classifier-free guidance."""
+        device = next(self.parameters()).device
+        count = attributes.shape[0]
+        z = torch.randn(count, self.latent_dim, device=device)
+        nulls = self.null_attributes(count, device)
+        dt = 1.0 / steps
+        for step in range(steps):
+            t = torch.full((count,), step * dt, device=device)
+            velocity = self.forward(z, t, attributes)
+            if guidance_scale != 1.0:
+                unconditional = self.forward(z, t, nulls)
+                velocity = unconditional + guidance_scale * (velocity - unconditional)
+            z = z + velocity * dt
+        return z

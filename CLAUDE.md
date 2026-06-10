@@ -19,7 +19,8 @@ The single source of truth for milestones, scope, and verification is
 tiny3dlatent/          Python package (the actual pipeline)
   data/                procedural dataset generation, labels, previews (Milestone 1)
   representation/      marching cubes, mesh cleanup, OBJ export, stats, previews (Milestone 2)
-  models/              torch dataset, AE/VAE, latent flow, training + generation CLIs (Milestones 3-5)
+  models/              torch dataset, AE/VAE, latent flows, training + generation CLIs (Milestones 3-6)
+  text/                tiny-vocabulary prompt parser and attribute embedding indices (Milestone 6)
   utils/               small shared helpers (io, rng)
 configs/               JSON configs (e.g. procedural_dataset.json)
 tests/                 pytest tests
@@ -59,6 +60,10 @@ Always use the repo venv interpreter `./venv/bin/python`.
 # Train the class-conditioned latent flow on the latest VAE, then generate + mesh samples
 ./venv/bin/python -m tiny3dlatent.models.train_flow --config configs/latent_flow.json
 ./venv/bin/python -m tiny3dlatent.models.generate_cli --per-class 16 --steps 50
+
+# Train the prompt-conditioned flow (CFG), then generate from text prompts
+./venv/bin/python -m tiny3dlatent.models.train_text_flow --config configs/text_flow.json
+./venv/bin/python -m tiny3dlatent.models.text_generate_cli --prompt "blue tall cylinder"
 
 # Tests
 ./venv/bin/python -m pytest tests/
