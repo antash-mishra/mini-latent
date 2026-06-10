@@ -14,6 +14,11 @@ Plan reviewed against implementation: 2026-06-10
   meshes from occupancy grids, cleans them, exports OBJ, computes mesh stats, and renders
   shaded previews. All six shape types extract as watertight single-component meshes; see
   `tests/test_mesh_extraction.py` and `outputs/runs/<timestamp>-mesh-extraction/`.
+- Milestone 3: complete. `tiny3dlatent/models/` trains a 1.3M-parameter 3D conv autoencoder
+  (GroupNorm blocks, 128-d latent, BCE with `pos_weight`) via
+  `tiny3dlatent.models.train_ae`. Overfit-8 sanity reaches IoU 0.99; the full run reaches
+  val IoU 0.87 (> 0.85 target) with all shape types recognizable in `recon_grid.png`; see
+  `tests/test_autoencoder.py` and `outputs/runs/20260610-160210-autoencoder/`.
 
 ## Short Answer
 

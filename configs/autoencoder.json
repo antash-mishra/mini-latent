@@ -1,0 +1,15 @@
+{
+  "seed": 0,
+  "dataset_dir": "data/procedural",
+  "output_dir": "outputs/runs",
+  "device": "auto",
+  "resolution": 32,
+  "latent_dim": 128,
+  "base_channels": 16,
+  "batch_size": 32,
+  "learning_rate": 0.001,
+  "pos_weight": 3.0,
+  "epochs": 40,
+  "overfit_count": 0,
+  "preview_count": 8
+}

@@ -19,6 +19,7 @@ The single source of truth for milestones, scope, and verification is
 tiny3dlatent/          Python package (the actual pipeline)
   data/                procedural dataset generation, labels, previews (Milestone 1)
   representation/      marching cubes, mesh cleanup, OBJ export, stats, previews (Milestone 2)
+  models/              torch dataset, 3D autoencoder, metrics, training CLIs (Milestone 3+)
   utils/               small shared helpers (io, rng)
 configs/               JSON configs (e.g. procedural_dataset.json)
 tests/                 pytest tests
@@ -45,6 +46,11 @@ Always use the repo venv interpreter `./venv/bin/python`.
 
 # Extract meshes from dataset grids (OBJ + stats + renders into a run folder)
 ./venv/bin/python -m tiny3dlatent.representation.extract_cli --config configs/mesh_extraction.json
+
+# Train the 3D autoencoder (checkpoint + history + recon grid into a run folder)
+./venv/bin/python -m tiny3dlatent.models.train_ae --config configs/autoencoder.json
+# Overfit-8 sanity check before a full run
+./venv/bin/python -m tiny3dlatent.models.train_ae --overfit 8 --epochs 200
 
 # Tests
 ./venv/bin/python -m pytest tests/
