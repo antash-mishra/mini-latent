@@ -1,6 +1,19 @@
 # Low-Level Modern 3D Generation Project Plan
 
 Research context checked: 2026-05-12
+Plan reviewed against implementation: 2026-06-10
+
+## Current Status
+
+- Milestone 0: folded into Milestone 1. There is no separate smoke script; the dataset generator
+  creates timestamped run folders under `outputs/runs/` with config, metadata, and stats, which
+  covers the reproducibility goal.
+- Milestone 1: complete. `tiny3dlatent/data/` generates 1000 train / 200 val occupancy grids at
+  `32^3` with shape/color/size/descriptor labels, train/val split, stats, previews, and tests.
+- Milestone 2: complete. `tiny3dlatent/representation/` extracts padded marching cubes
+  meshes from occupancy grids, cleans them, exports OBJ, computes mesh stats, and renders
+  shaded previews. All six shape types extract as watertight single-component meshes; see
+  `tests/test_mesh_extraction.py` and `outputs/runs/<timestamp>-mesh-extraction/`.
 
 ## Short Answer
 
@@ -57,8 +70,10 @@ mechanism at a scale you can afford.
 Project name:
 
 ```text
-Tiny3D-Latent
+mini-latent
 ```
+
+(The Python package is `tiny3dlatent`.)
 
 Final portfolio angle:
 
@@ -149,6 +164,13 @@ python -m tiny3dlatent.experiments.smoke
 
 creates a timestamped run folder with `metadata.json`.
 
+Verification:
+
+- Run `./venv/bin/python -m tiny3dlatent.data.generate --config configs/procedural_dataset.json`.
+- Check a new `outputs/runs/<timestamp>-procedural-dataset/` folder appears containing
+  `metadata.json`, `config.json`, and `dataset_stats.json`.
+- File checks are enough here; no screenshot needed.
+
 Devlog angle:
 
 ```text
@@ -194,6 +216,14 @@ Artifact:
 100 generated shapes -> preview grid + dataset_stats.json
 ```
 
+Verification:
+
+- Run the tests: `./venv/bin/python -m pytest tests/test_procedural_dataset.py`.
+- Check `data/procedural/dataset_stats.json`: all six shape types present, split counts match
+  the config.
+- Visual check: take a screenshot of (or read) `outputs/runs/<run>/preview_grid.png` and
+  confirm shapes are recognizable, centered, and not clipped at the grid border.
+
 Devlog angle:
 
 ```text
@@ -212,12 +242,14 @@ Choose the 3D format your model will learn and prove it can become a mesh.
 
 Build:
 
-- Dense `32^3` occupancy grid.
+- Dense `32^3` occupancy grid (already produced by Milestone 1).
 - Optional TSDF grid after occupancy works.
-- Grid visualization slices.
+- Grid visualization slices (already available from Milestone 1 previews).
 - Marching cubes mesh extraction.
+- Pad the grid with a layer of empty voxels before marching cubes so shapes touching the
+  border still produce closed, watertight meshes.
 - OBJ or GLB export.
-- Simple mesh stats: vertices, faces, bounds, file size.
+- Simple mesh stats: vertices, faces, bounds, file size, watertightness.
 
 Study:
 
@@ -239,6 +271,15 @@ Artifact:
 ```text
 procedural occupancy grid -> mesh.obj / mesh.glb -> turntable or preview images
 ```
+
+Verification:
+
+- Programmatic: load the exported mesh with trimesh and assert vertices > 0, faces > 0,
+  `mesh.is_watertight` is true, and the bounds fit inside the expected box.
+- Run a known sphere grid through the pipeline and check the vertex count and bounds are
+  plausible for a sphere.
+- Visual check: render preview images of extracted meshes and take a screenshot — surfaces
+  should be closed, with no holes where shapes touch the grid border.
 
 Devlog angle:
 
@@ -288,6 +329,14 @@ input shape -> latent vector -> reconstructed shape
 ```
 
 plus a grid comparing original and reconstructed meshes.
+
+Verification:
+
+- Sanity check: overfit a batch of 8 shapes first; training loss should approach zero and
+  those reconstructions should be near-perfect.
+- Metric: mean voxel IoU on the validation split above roughly 0.85 at `32^3`.
+- Visual check: take a screenshot of the original-vs-reconstruction comparison grid and
+  confirm each shape type is still recognizable after the bottleneck.
 
 Devlog angle:
 
@@ -341,6 +390,14 @@ or:
 sphere -> rounded cube -> box
 ```
 
+Verification:
+
+- Metric: validation IoU stays close to the plain autoencoder; a small drop is expected.
+- Posterior collapse check: the KL term is not near zero across all latent dimensions, and
+  reconstructions from sampled (not mean) latents still look correct.
+- Visual check: take a screenshot of the interpolation strip — intermediate frames should be
+  plausible in-between shapes, not noise or empty grids.
+
 Devlog angle:
 
 ```text
@@ -363,6 +420,8 @@ Build:
 - Train a small latent generator.
 - Recommended first version: class-conditioned rectified flow with an MLP.
 - Alternative simpler version: class-conditioned latent diffusion with an MLP denoiser.
+- Condition only on shape type at first (`sphere`, `cube`, `cylinder`, ...); full attribute
+  conditioning (size, descriptor, color) arrives in Milestone 6.
 - Decode generated latents into occupancy grids and meshes.
 
 Study:
@@ -387,6 +446,14 @@ noise + "cube" label -> generated cube-like mesh
 noise + "cylinder" label -> generated cylinder-like mesh
 ```
 
+Verification:
+
+- Generate around 16 samples per shape class and decode them.
+- Programmatic: most samples should be non-empty, form a single connected component, and have
+  filled-voxel counts in a plausible range for their class (compare `dataset_stats.json`).
+- Visual check: take a screenshot of a render grid of generated meshes per class — cubes
+  should look cube-like, cylinders cylinder-like, and samples within a class should vary.
+
 Devlog angle:
 
 ```text
@@ -405,9 +472,14 @@ Make the system respond to simple text without using a huge language model.
 
 Build:
 
-- Small vocabulary parser.
-- Map words like `red`, `blue`, `cube`, `sphere`, `tall`, `wide`, `metallic`, and `matte` to condition vectors.
+- Small vocabulary parser over the Milestone 1 label vocabulary: colors (`red`, `green`,
+  `blue`, `yellow`, `cyan`, `orange`), sizes (`small`, `medium`, `large`), descriptors
+  (`tall`, `wide`, `metallic`, `matte`), and shape types.
+- Map parsed words to condition vectors, for example concatenated attribute embeddings.
 - Conditioning injection into the latent generator.
+- Optional: classifier-free guidance by randomly dropping the condition during training and
+  blending conditional/unconditional predictions at sampling time. Cheap to add and very
+  instructive.
 - Invalid prompt handling.
 - Prompt metadata saved with generated assets.
 
@@ -432,6 +504,14 @@ Artifact:
 "blue tall cylinder" -> blue tall cylinder-like mesh
 ```
 
+Verification:
+
+- Programmatic: for prompts with `tall`/`wide`, check the bounding box aspect ratio of the
+  generated grid matches the word; check prompt metadata is saved next to the asset.
+- Check unknown words fail with a clear error instead of generating garbage.
+- Visual check: take a screenshot of a small prompt gallery (one render per prompt) and
+  confirm each mesh matches its prompt.
+
 Devlog angle:
 
 ```text
@@ -450,8 +530,12 @@ Move from shape-only generation to asset-like generation.
 
 Build:
 
+- Extend the procedural dataset generator to emit RGB voxel grids. The Milestone 1 dataset
+  stores color only as a label; the `COLOR_RGB` palette in `tiny3dlatent/data/labels.py`
+  already defines the targets, and a single uniform color per object is enough.
 - RGB voxel channels.
-- Optional material channels: roughness and metallic.
+- Optional material channels: roughness and metallic (driven by the `metallic`/`matte`
+  descriptor labels, which do not affect geometry today).
 - Separate shape decoder and material decoder.
 - Color/material losses.
 - Basic GLB material export where possible.
@@ -477,6 +561,14 @@ Artifact:
 ```text
 "shiny red sphere" -> mesh + material metadata + material render grid
 ```
+
+Verification:
+
+- Programmatic: load the exported GLB with trimesh and assert a material exists, its base
+  color is close to the palette entry in `tiny3dlatent/data/labels.py`, and roughness/metallic
+  values match the descriptor.
+- Visual check: take a screenshot of the colored render grid — color should match the prompt
+  and be uniform across the surface.
 
 Devlog angle:
 
@@ -527,6 +619,12 @@ generation_report.html
 ```
 
 with renders, mesh stats, reconstruction metrics, and failure examples.
+
+Verification:
+
+- Programmatic: the report script runs end-to-end from saved outputs without manual steps.
+- Visual check: open `generation_report.html` in a browser and take a screenshot — renders,
+  metric tables, and the failure gallery should all be present and populated.
 
 Devlog angle:
 
@@ -584,6 +682,13 @@ or:
 dense voxel decoder vs compact decoder comparison
 ```
 
+Verification:
+
+- Visual check: take a screenshot of the side-by-side `32^3` vs `64^3` (or dense vs compact)
+  comparison render — the upgraded output should be visibly sharper.
+- Programmatic: record memory use and seconds per training step for both settings in a small
+  table; the cost increase should be measured, not guessed.
+
 Devlog angle:
 
 ```text
@@ -630,6 +735,13 @@ Final artifact:
 ```text
 text label -> latent generation -> 3D grid -> mesh -> turntable -> report
 ```
+
+Verification:
+
+- Run the final CLI end-to-end in a clean environment (fresh clone or fresh venv): one command
+  from text label to exported mesh and report.
+- Visual check: take a screenshot of the web gallery showing several prompts and their
+  generated assets.
 
 Devlog angle:
 
@@ -695,6 +807,14 @@ with:
 - mesh issue examples
 - procedural vs real dataset comparison
 - notes on what broke
+
+Verification:
+
+- Check every real asset has a source URL and license recorded in the report table.
+- Programmatic: all normalized meshes fit the unit box and are centered; voxelized grids are
+  non-empty.
+- Visual check: open `real_dataset_report.html` in a browser and take a screenshot —
+  before/after normalization renders and voxel previews should be present.
 
 Devlog angle:
 

@@ -1,0 +1,8 @@
+{
+  "dataset_dir": "data/procedural",
+  "output_dir": "outputs/runs",
+  "examples_per_shape_type": 2,
+  "split": "val",
+  "iso_value": 0.5,
+  "pad_width": 1
+}

@@ -20,9 +20,9 @@ principles.
 
 ## Current Status
 
-Milestone 1 is complete: a procedural 3D dataset generator.
+Milestones 1 and 2 are complete.
 
-It currently creates:
+Milestone 1 (procedural dataset) creates:
 
 - `32 x 32 x 32` occupancy grids
 - spheres, cubes, rounded boxes, cylinders, capsules, and tori
@@ -36,6 +36,16 @@ The first generated dataset contains:
 1000 training examples
 200 validation examples
 ```
+
+Milestone 2 (mesh extraction) turns those grids into inspectable assets:
+
+- padded marching cubes extraction back into normalized `[-1, 1]` space
+- mesh cleanup (merged vertices, no degenerate faces, fixed normals)
+- OBJ export
+- mesh stats (vertices, faces, bounds, watertightness, connected components)
+- shaded preview renders
+
+All six shape types extract as watertight, single-component meshes.
 
 ## Quickstart
 
@@ -61,10 +71,16 @@ To generate preview images from the existing dataset:
 ./venv/bin/python -m tiny3dlatent.data.preview_cli
 ```
 
+To extract meshes from the dataset (writes OBJ files, stats, and renders to a run folder):
+
+```bash
+./venv/bin/python -m tiny3dlatent.representation.extract_cli --config configs/mesh_extraction.json
+```
+
 To run the tests:
 
 ```bash
-./venv/bin/python -m pytest tests/test_procedural_dataset.py
+./venv/bin/python -m pytest tests/
 ```
 
 ## Why Procedural Data First?
@@ -85,11 +101,12 @@ Real 3D datasets are planned later, after the core pipeline works.
 
 ```text
 tiny3dlatent/
-  data/        procedural dataset generation and previews
-  utils/       small shared helpers
+  data/            procedural dataset generation and previews
+  representation/  marching cubes, mesh cleanup, export, stats, previews
+  utils/           small shared helpers
 
-configs/       dataset configuration
-tests/         focused tests for dataset generation
+configs/       dataset and mesh extraction configuration
+tests/         focused tests for dataset generation and mesh extraction
 docs/          project plan, explainers, and devlogs
 ```
 
@@ -99,17 +116,21 @@ docs/          project plan, explainers, and devlogs
 - [Visual project roadmap](docs/low_level_modern_3d_plan_summary.html)
 - [Dataset explainer](docs/dataset_explained_simple.html)
 - [Devlog 1: Building a tiny 3D dataset](docs/devlog_01_procedural_3d_dataset.md)
+- [Devlog 2: Turning a voxel grid into my first generated mesh](docs/devlog_02_marching_cubes_mesh_extraction.md)
 
 ## Next Milestone
 
-Milestone 2 will turn voxel grids into visible mesh assets:
+Milestone 3 will train the first model: a tiny 3D convolutional autoencoder that compresses
+an occupancy grid into a latent vector and reconstructs it:
 
 ```text
 occupancy grid
-  -> marching cubes
-  -> mesh
-  -> preview render
+  -> 3D conv encoder
+  -> latent vector
+  -> 3D conv decoder
+  -> reconstructed grid
+  -> mesh (via the milestone 2 pipeline)
 ```
 
-That will make the 3D structure easier to inspect and prepare the project for later learned
-representations.
+Reconstruction quality will be measured with voxel IoU and inspected through the existing
+mesh extraction and preview path.
