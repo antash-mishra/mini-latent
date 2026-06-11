@@ -73,6 +73,9 @@ Always use the repo venv interpreter `./venv/bin/python`.
 # Interactive shell: type prompts, get OBJ/GLB assets (loads latest color flow)
 ./venv/bin/python -m tiny3dlatent.models.interactive_cli
 
+# Visualize the flow trajectory: noise -> shape across integration steps
+./venv/bin/python -m tiny3dlatent.models.trajectory_cli --prompt "cyan torus"
+
 # Build the HTML generation report end-to-end (recon + generation + failures)
 ./venv/bin/python -m tiny3dlatent.report.report_cli
 
