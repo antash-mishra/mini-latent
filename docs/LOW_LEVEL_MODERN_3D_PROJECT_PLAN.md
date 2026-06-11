@@ -48,6 +48,12 @@ Plan reviewed against implementation: 2026-06-10
   materials, 24/24 metallic correct, 21/24 base colors within 0.15 of `COLOR_RGB`;
   roughness is direction-correct but compresses toward the mean through the flow. See
   `tests/test_color_material.py` and `outputs/runs/20260611-104557-asset-generation/`.
+- Milestone 8: complete. `tiny3dlatent/report/report_cli.py` builds
+  `generation_report.html` end-to-end: per-example recon IoU (mean 0.86, min 0.40, max
+  0.98), fresh class generation (96/96 checks), mesh quality table, prompt aspect checks,
+  turntable strips, and a failure gallery. Key finding: the worst reconstructions are all
+  small toruses/thin capsules whose holes vanish at `32^3`. See
+  `outputs/runs/20260611-094647-generation-report/`.
 
 ## Short Answer
 

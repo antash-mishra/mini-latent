@@ -70,6 +70,9 @@ Always use the repo venv interpreter `./venv/bin/python`.
 ./venv/bin/python -m tiny3dlatent.models.train_text_flow --config configs/color_text_flow.json
 ./venv/bin/python -m tiny3dlatent.models.asset_generate_cli --prompt "red metallic sphere"
 
+# Build the HTML generation report end-to-end (recon + generation + failures)
+./venv/bin/python -m tiny3dlatent.report.report_cli
+
 # Tests
 ./venv/bin/python -m pytest tests/
 

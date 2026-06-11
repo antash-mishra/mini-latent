@@ -67,6 +67,27 @@ def save_mesh_views(
     plt.close(figure)
 
 
+def save_turntable_strip(
+    mesh: trimesh.Trimesh,
+    output_path: Path,
+    *,
+    title: str,
+    color: str = "blue",
+    rgb: object = None,
+    frames: int = 8,
+) -> None:
+    """Render a horizontal strip of azimuth-rotated views of one mesh."""
+    ensure_dir(output_path.parent)
+    figure = plt.figure(figsize=(frames * 1.8, 2.2))
+    for index in range(frames):
+        axis = figure.add_subplot(1, frames, index + 1, projection="3d")
+        _draw_mesh(axis, mesh, color=color, rgb=rgb, azim=index * 360.0 / frames)
+    figure.suptitle(title, fontsize=10)
+    figure.tight_layout()
+    figure.savefig(output_path, dpi=130)
+    plt.close(figure)
+
+
 def _draw_mesh(
     axis: plt.Axes,
     mesh: trimesh.Trimesh,

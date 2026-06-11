@@ -89,43 +89,50 @@ def generate(
         grids = occupancy_from_logits(logits)[:, 0].cpu().numpy().astype(np.uint8)
 
         low, high = voxel_ranges[shape_type]
-        non_empty = 0
-        single_component = 0
-        in_range = 0
-        voxel_counts = []
+        per_sample = []
         mesh_count = 0
         for sample_index, grid in enumerate(grids):
             filled = int(grid.sum())
-            voxel_counts.append(filled)
-            if filled == 0:
-                continue
-            non_empty += 1
-            components = int(connected_components_label(grid, connectivity=1).max())
-            if components == 1:
-                single_component += 1
-            if low <= filled <= high:
-                in_range += 1
-            if mesh_count < MESHES_PER_CLASS:
-                mesh = clean_mesh(extract_mesh_from_occupancy(grid))
-                export_mesh(mesh, mesh_dir / f"{shape_type}_{sample_index:02d}.obj")
-                preview_entries.append(
-                    (
-                        mesh,
-                        {
-                            "label": f"generated {shape_type} #{sample_index}",
-                            "color": CLASS_PREVIEW_COLORS[shape_type],
-                        },
-                    )
+            sample = {
+                "index": sample_index,
+                "filled_voxels": filled,
+                "components": 0,
+                "in_range": False,
+                "mesh_file": None,
+            }
+            if filled > 0:
+                sample["components"] = int(
+                    connected_components_label(grid, connectivity=1).max()
                 )
-                mesh_count += 1
+                sample["in_range"] = bool(low <= filled <= high)
+                if mesh_count < MESHES_PER_CLASS:
+                    mesh = clean_mesh(extract_mesh_from_occupancy(grid))
+                    obj_path = mesh_dir / f"{shape_type}_{sample_index:02d}.obj"
+                    export_mesh(mesh, obj_path)
+                    sample["mesh_file"] = obj_path.as_posix()
+                    preview_entries.append(
+                        (
+                            mesh,
+                            {
+                                "label": f"generated {shape_type} #{sample_index}",
+                                "color": CLASS_PREVIEW_COLORS[shape_type],
+                            },
+                        )
+                    )
+                    mesh_count += 1
+            per_sample.append(sample)
 
+        non_empty = sum(1 for s in per_sample if s["filled_voxels"] > 0)
+        single_component = sum(1 for s in per_sample if s["components"] == 1)
+        in_range = sum(1 for s in per_sample if s["in_range"])
         class_stats[shape_type] = {
             "samples": per_class,
             "non_empty": non_empty,
             "single_component": single_component,
             "voxel_count_in_range": in_range,
             "expected_voxel_range": [low, high],
-            "voxel_counts": voxel_counts,
+            "voxel_counts": [s["filled_voxels"] for s in per_sample],
+            "per_sample": per_sample,
         }
         print(
             f"{shape_type:12s} non_empty {non_empty}/{per_class}  "
