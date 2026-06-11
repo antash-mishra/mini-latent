@@ -1,0 +1,16 @@
+{
+  "seed": 0,
+  "dataset_dir": "data/procedural64",
+  "output_dir": "outputs/runs",
+  "device": "auto",
+  "resolution": 64,
+  "latent_dim": 128,
+  "base_channels": 16,
+  "batch_size": 16,
+  "learning_rate": 0.001,
+  "pos_weight": 3.0,
+  "kl_weight": 0.0001,
+  "kl_warmup_epochs": 8,
+  "epochs": 30,
+  "preview_count": 8
+}

@@ -1,0 +1,9 @@
+{
+  "seed": 0,
+  "resolution": 64,
+  "train_count": 1000,
+  "val_count": 200,
+  "dataset_dir": "data/procedural64",
+  "output_dir": "outputs/runs",
+  "preview_count": 20
+}

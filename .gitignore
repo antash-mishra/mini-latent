@@ -12,3 +12,8 @@ data/procedural/train/
 data/procedural/val/
 data/procedural/metadata.json
 data/procedural/dataset_stats.json
+
+data/procedural64/train/
+data/procedural64/val/
+data/procedural64/metadata.json
+data/procedural64/dataset_stats.json

@@ -54,6 +54,14 @@ Plan reviewed against implementation: 2026-06-10
   turntable strips, and a failure gallery. Key finding: the worst reconstructions are all
   small toruses/thin capsules whose holes vanish at `32^3`. See
   `outputs/runs/20260611-094647-generation-report/`.
+- Milestone 9: complete (64^3 dense path). Matched-seed `64^3` dataset, VAE trained at
+  `64^3` (30 epochs, 88 min), measured cost table: 13 -> 104 ms/example, 1.8M -> 12.9M
+  params, 1.2 -> 2.3 GB. Side-by-side recons are visibly smoother at `64^3`; the
+  small-torus failure mode partially improves. Caveat: voxel IoU reads lower at `64^3`
+  (0.83 vs 0.88) due to shorter training and stricter per-voxel granularity. See
+  `tiny3dlatent/models/benchmark_resolution.py`, `resolution_compare_cli.py`,
+  `outputs/runs/20260611-094546-resolution-benchmark/`, and
+  `outputs/runs/20260611-111722-resolution-comparison/`.
 
 ## Short Answer
 

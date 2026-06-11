@@ -73,6 +73,12 @@ Always use the repo venv interpreter `./venv/bin/python`.
 # Build the HTML generation report end-to-end (recon + generation + failures)
 ./venv/bin/python -m tiny3dlatent.report.report_cli
 
+# Resolution study: 64^3 dataset, cost benchmark, side-by-side comparison
+./venv/bin/python -m tiny3dlatent.data.generate --config configs/procedural_dataset_64.json
+./venv/bin/python -m tiny3dlatent.models.benchmark_resolution
+./venv/bin/python -m tiny3dlatent.models.train_vae --config configs/vae_64.json
+./venv/bin/python -m tiny3dlatent.models.resolution_compare_cli
+
 # Tests
 ./venv/bin/python -m pytest tests/
 
