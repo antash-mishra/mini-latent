@@ -15,6 +15,16 @@ COLOR_RGB = {
     "orange": (230, 130, 55),
 }
 
+# PBR material targets implied by the descriptor labels. Only metallic/matte
+# change the material; the geometry descriptors use a neutral default.
+DESCRIPTOR_MATERIAL = {
+    "metallic": {"roughness": 0.3, "metallic": 1.0},
+    "matte": {"roughness": 0.9, "metallic": 0.0},
+    "standard": {"roughness": 0.6, "metallic": 0.0},
+    "tall": {"roughness": 0.6, "metallic": 0.0},
+    "wide": {"roughness": 0.6, "metallic": 0.0},
+}
+
 
 def label_for(color: str, size: str, descriptor: str, shape_type: str) -> str:
     parts = [color, size]

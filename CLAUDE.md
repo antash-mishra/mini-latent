@@ -65,6 +65,11 @@ Always use the repo venv interpreter `./venv/bin/python`.
 ./venv/bin/python -m tiny3dlatent.models.train_text_flow --config configs/text_flow.json
 ./venv/bin/python -m tiny3dlatent.models.text_generate_cli --prompt "blue tall cylinder"
 
+# Color/material: train the color VAE, retrain the flow on it, export GLB assets
+./venv/bin/python -m tiny3dlatent.models.train_color_vae --config configs/color_vae.json
+./venv/bin/python -m tiny3dlatent.models.train_text_flow --config configs/color_text_flow.json
+./venv/bin/python -m tiny3dlatent.models.asset_generate_cli --prompt "red metallic sphere"
+
 # Tests
 ./venv/bin/python -m pytest tests/
 

@@ -31,7 +31,12 @@ def save_mesh_preview_grid(
 
     for index, (mesh, metadata) in enumerate(entries):
         axis = figure.add_subplot(rows, columns, index + 1, projection="3d")
-        _draw_mesh(axis, mesh, color=str(metadata.get("color", "blue")))
+        _draw_mesh(
+            axis,
+            mesh,
+            color=str(metadata.get("color", "blue")),
+            rgb=metadata.get("rgb"),
+        )
         axis.set_title(str(metadata.get("label", "")), fontsize=8)
 
     figure.tight_layout()
@@ -67,10 +72,16 @@ def _draw_mesh(
     mesh: trimesh.Trimesh,
     *,
     color: str,
+    rgb: object = None,
     elev: float = 22.0,
     azim: float = -60.0,
 ) -> None:
-    rgb = np.array(COLOR_RGB.get(color, COLOR_RGB["blue"]), dtype=np.float32) / 255.0
+    if rgb is not None:
+        rgb = np.asarray(rgb, dtype=np.float32)
+    else:
+        rgb = (
+            np.array(COLOR_RGB.get(color, COLOR_RGB["blue"]), dtype=np.float32) / 255.0
+        )
     triangles = mesh.vertices[mesh.faces]
     collection = Poly3DCollection(
         triangles,

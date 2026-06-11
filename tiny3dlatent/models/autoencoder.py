@@ -5,15 +5,17 @@ from torch import nn
 
 
 class Encoder3d(nn.Module):
-    """Three stride-2 conv blocks: `(B, 1, R, R, R)` -> flat conv features."""
+    """Three stride-2 conv blocks: `(B, C, R, R, R)` -> flat conv features."""
 
-    def __init__(self, resolution: int, base_channels: int) -> None:
+    def __init__(
+        self, resolution: int, base_channels: int, *, in_channels: int = 1
+    ) -> None:
         super().__init__()
         if resolution % 8 != 0:
             raise ValueError("resolution must be divisible by 8")
         c1, c2, c3 = base_channels, base_channels * 2, base_channels * 4
         self.conv = nn.Sequential(
-            nn.Conv3d(1, c1, kernel_size=3, stride=2, padding=1),
+            nn.Conv3d(in_channels, c1, kernel_size=3, stride=2, padding=1),
             nn.GroupNorm(4, c1),
             nn.SiLU(),
             nn.Conv3d(c1, c2, kernel_size=3, stride=2, padding=1),
@@ -31,9 +33,16 @@ class Encoder3d(nn.Module):
 
 
 class Decoder3d(nn.Module):
-    """Latent vector -> occupancy logits of shape `(B, 1, R, R, R)`."""
+    """Latent vector -> a `(B, out_channels, R, R, R)` grid of logits."""
 
-    def __init__(self, resolution: int, latent_dim: int, base_channels: int) -> None:
+    def __init__(
+        self,
+        resolution: int,
+        latent_dim: int,
+        base_channels: int,
+        *,
+        out_channels: int = 1,
+    ) -> None:
         super().__init__()
         if resolution % 8 != 0:
             raise ValueError("resolution must be divisible by 8")
@@ -51,7 +60,7 @@ class Decoder3d(nn.Module):
             nn.ConvTranspose3d(c1, c1, kernel_size=4, stride=2, padding=1),
             nn.GroupNorm(4, c1),
             nn.SiLU(),
-            nn.Conv3d(c1, 1, kernel_size=3, padding=1),
+            nn.Conv3d(c1, out_channels, kernel_size=3, padding=1),
         )
 
     def forward(self, z: torch.Tensor) -> torch.Tensor:

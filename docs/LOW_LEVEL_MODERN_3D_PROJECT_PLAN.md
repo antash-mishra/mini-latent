@@ -41,6 +41,13 @@ Plan reviewed against implementation: 2026-06-10
   Note: the production VAE is now the 80-epoch `outputs/runs/20260610-192013-vae/` (sampled
   IoU 0.833 vs 0.814; mean IoU unchanged within noise — the decoder is resolution-bound,
   see Milestone 9).
+- Milestone 7: complete. `ColoredOccupancyDataset` paints RGB + roughness/metallic channels
+  inside the shape; `ColorVAE` (6-channel encoder, separate shape/color decoders, material
+  head) reaches geometry IoU 0.84, color MAE 0.014, material MAE 0.048;
+  `asset_generate_cli.py` exports GLBs with PBR materials. Verified 24/24 GLBs have
+  materials, 24/24 metallic correct, 21/24 base colors within 0.15 of `COLOR_RGB`;
+  roughness is direction-correct but compresses toward the mean through the flow. See
+  `tests/test_color_material.py` and `outputs/runs/20260611-104557-asset-generation/`.
 
 ## Short Answer
 

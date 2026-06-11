@@ -10,15 +10,15 @@ import torch
 from torch.utils.data import DataLoader, TensorDataset
 
 from tiny3dlatent.models.common import (
+    build_vae_from_checkpoint,
     count_parameters,
     load_checkpoint,
     save_checkpoint,
     select_device,
     set_seed,
 )
-from tiny3dlatent.models.dataset import OccupancyDataset
+from tiny3dlatent.models.dataset import ColoredOccupancyDataset, OccupancyDataset
 from tiny3dlatent.models.flow import ConditionedLatentFlow, rectified_flow_pair
-from tiny3dlatent.models.vae import VAE
 from tiny3dlatent.text.parser import (
     ATTRIBUTE_ORDER,
     ATTRIBUTE_SIZES,
@@ -60,16 +60,13 @@ def train_text_flow(config: dict[str, Any]) -> dict[str, Any]:
     )
     vae_checkpoint = load_checkpoint(vae_checkpoint_path)
     vae_config = vae_checkpoint["config"]
-    vae = VAE(
-        resolution=int(vae_config["resolution"]),
-        latent_dim=int(vae_config["latent_dim"]),
-        base_channels=int(vae_config["base_channels"]),
-    ).to(device)
-    vae.load_state_dict(vae_checkpoint["model_state"])
-    vae.eval()
+    vae = build_vae_from_checkpoint(vae_checkpoint).to(device)
 
     latents, attributes = _encode_latents_with_attributes(
-        vae, Path(str(config["dataset_dir"])), device
+        vae,
+        Path(str(config["dataset_dir"])),
+        device,
+        colored=vae_config.get("model_type") == "color_vae",
     )
     latent_mean = latents.mean(dim=0)
     latent_std = latents.std(dim=0).clamp_min(1e-5)
@@ -90,7 +87,12 @@ def train_text_flow(config: dict[str, Any]) -> dict[str, Any]:
     condition_dropout = float(config["condition_dropout"])
     null_row = torch.tensor(ATTRIBUTE_SIZES, device=device)
 
-    run_dir = _make_run_dir(Path(str(config["output_dir"])))
+    experiment = (
+        "color-text-flow"
+        if vae_config.get("model_type") == "color_vae"
+        else "text-flow"
+    )
+    run_dir = _make_run_dir(Path(str(config["output_dir"])), experiment)
     started = time.time()
     epochs = int(config["epochs"])
     history: list[dict[str, float]] = []
@@ -158,9 +160,14 @@ def train_text_flow(config: dict[str, Any]) -> dict[str, Any]:
 
 
 def _encode_latents_with_attributes(
-    vae: VAE, dataset_dir: Path, device: torch.device
+    vae: torch.nn.Module,
+    dataset_dir: Path,
+    device: torch.device,
+    *,
+    colored: bool = False,
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    train_set = OccupancyDataset(dataset_dir, split="train")
+    dataset_class = ColoredOccupancyDataset if colored else OccupancyDataset
+    train_set = dataset_class(dataset_dir, split="train")
     loader = DataLoader(train_set, batch_size=64)
     all_means = []
     with torch.no_grad():
@@ -179,13 +186,20 @@ def _encode_latents_with_attributes(
 
 
 def _resolve_vae_checkpoint(setting: str, output_root: Path) -> Path:
-    if setting != "latest":
+    if setting == "latest":
+        pattern, hint = "*-vae/vae.pt", "tiny3dlatent.models.train_vae"
+    elif setting == "latest-color":
+        pattern, hint = (
+            "*-color-vae/color_vae.pt",
+            "tiny3dlatent.models.train_color_vae",
+        )
+    else:
         return Path(setting)
-    candidates = sorted(output_root.glob("*-vae/vae.pt"))
+    candidates = sorted(output_root.glob(pattern))
     if not candidates:
         raise FileNotFoundError(
-            "no VAE checkpoint found under outputs/runs/*-vae/; train one with "
-            "python -m tiny3dlatent.models.train_vae"
+            f"no checkpoint matching {pattern} under {output_root}; train one with "
+            f"python -m {hint}"
         )
     return candidates[-1]
 
@@ -216,9 +230,9 @@ def _load_config(config_path: Path) -> dict[str, Any]:
     return config
 
 
-def _make_run_dir(output_root: Path) -> Path:
+def _make_run_dir(output_root: Path, experiment: str = "text-flow") -> Path:
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    return ensure_dir(output_root / f"{timestamp}-text-flow")
+    return ensure_dir(output_root / f"{timestamp}-{experiment}")
 
 
 if __name__ == "__main__":
